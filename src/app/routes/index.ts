@@ -22,6 +22,12 @@ import { WorkshopCategoryRouter } from "../modules/workshopCategory/workshopCate
 import { WorkshopOpeningHourRouter } from "../modules/workshopOpeningHours/workshopOpeningHours.routes.js";
 import { ActivityRouter } from "../modules/activity/activity.routes.js";
 import { VisionStatisticsRouter } from "../modules/visionStatistics/visionStatistics.routes.js";
+import { FighterRouter } from "../modules/fighter/fighter.route.js";
+import { EventRouter } from "../modules/event/event.route.js";
+import { BoutRouter } from "../modules/bout/bout.route.js";
+import { LeagueRouter } from "../modules/league/league.route.js";
+import { TeamRouter } from "../modules/team/team.route.js";
+import { DraftRouter } from "../modules/draft/draft.route.js";
 
 const router = express.Router();
 
@@ -117,6 +123,30 @@ const moduleRoutes = [
   {
     path: "/vision-statistics",
     route: VisionStatisticsRouter,
+  },
+  {
+    path: "/fighter",
+    route: FighterRouter,
+  },
+  {
+    path: "/event",
+    route: EventRouter,
+  },
+  {
+    path: "/bout",
+    route: BoutRouter,
+  },
+  {
+    path: "/league",
+    route: LeagueRouter,
+  },
+  {
+    path: "/team",
+    route: TeamRouter,
+  },
+  {
+    path: "/draft",
+    route: DraftRouter,
   },
 ];
 

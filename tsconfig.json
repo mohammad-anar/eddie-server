@@ -7,7 +7,8 @@
     "rootDir": "./src",
     /* Best Practice: Use paths instead of baseUrl for modern resolution */
     "paths": {
-      "*": ["./src/*", "./generated/*"]
+      "*": ["./src/*", "./generated/*"],
+      "@/*": ["./src/*"]
     },
     "esModuleInterop": true,
     "strict": true,

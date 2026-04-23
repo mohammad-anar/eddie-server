@@ -1,0 +1,45 @@
+enum Role {
+  USER
+  ADMIN
+}
+
+enum LeagueStatus {
+  DRAFTING
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+enum EventStatus {
+  UPCOMING
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum DraftStatus {
+  WAITING
+  OPEN
+  DRAFTING
+  COMPLETED
+}
+
+enum BoutResult {
+  KO_TKO
+  SUBMISSION
+  DECISION_UNANIMOUS
+  DECISION_SPLIT
+  DECISION_MAJORITY
+  DRAW
+  NO_CONTEST
+  DQ
+}
+
+enum NotificationType {
+  DRAFT_STARTING
+  DRAFT_PICK
+  RESULTS_POSTED
+  LEAGUE_INVITE
+  TRADE_OFFER
+  SYSTEM
+}
