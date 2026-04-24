@@ -1,65 +1,35 @@
-import { Request, Response } from 'express';
-import catchAsync from '../../shared/catchAsync.js';
-import sendResponse from '../../shared/sendResponse.js';
-import { DraftService } from './draft.service.js';
+import { Request, Response } from "express";
+import catchAsync from "../../shared/catchAsync.js";
+import sendResponse from "../../shared/sendResponse.js";
+import pick from "../../../helpers/pick.js";
+import { DraftService } from "./draft.service.js";
 
-const createDraft = catchAsync(async (req: Request, res: Response) => {
-  const result = await DraftService.createDraft(req.body);
-  sendResponse(res, {
-    statusCode: 201,
-    success: true,
-    message: 'Draft created successfully',
-    data: result,
-  });
+const getDraftSession = catchAsync(async (req: Request, res: Response) => {
+  const result = await DraftService.getDraftSession(req.params.leagueId);
+  sendResponse(res, { statusCode: 200, success: true, message: "Draft session retrieved successfully", data: result });
 });
 
-const getAllDraft = catchAsync(async (req: Request, res: Response) => {
-  const result = await DraftService.getAllDraft();
-  sendResponse(res, {
-    statusCode: 200,
-    success: true,
-    message: 'Drafts retrieved successfully',
-    data: result,
-  });
+const getAvailableFighters = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, ["searchTerm", "division"]);
+  const options = pick(req.query, ["page", "limit", "sortBy", "sortOrder"]);
+  const result = await DraftService.getAvailableFighters(req.params.leagueId, filters as any, options as any);
+  sendResponse(res, { statusCode: 200, success: true, message: "Available fighters retrieved successfully", data: result });
 });
 
-const getDraftById = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const result = await DraftService.getDraftById(id);
-  sendResponse(res, {
-    statusCode: 200,
-    success: true,
-    message: 'Draft retrieved successfully',
-    data: result,
-  });
+const startDraft = catchAsync(async (req: Request, res: Response) => {
+  const result = await DraftService.startDraft(req.params.leagueId, req.user.id, req.user.role);
+  sendResponse(res, { statusCode: 200, success: true, message: "Draft started successfully", data: result });
 });
 
-const updateDraft = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const result = await DraftService.updateDraft(id, req.body);
-  sendResponse(res, {
-    statusCode: 200,
-    success: true,
-    message: 'Draft updated successfully',
-    data: result,
-  });
+const pickFighter = catchAsync(async (req: Request, res: Response) => {
+  const result = await DraftService.pickFighter(req.params.leagueId, req.user.id, req.body);
+  sendResponse(res, { statusCode: 200, success: true, message: "Fighter picked successfully", data: result });
 });
 
-const deleteDraft = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const result = await DraftService.deleteDraft(id);
-  sendResponse(res, {
-    statusCode: 200,
-    success: true,
-    message: 'Draft deleted successfully',
-    data: result,
-  });
+const autoPick = catchAsync(async (req: Request, res: Response) => {
+  const { teamId } = req.body;
+  const result = await DraftService.autoPick(req.params.leagueId, teamId);
+  sendResponse(res, { statusCode: 200, success: true, message: "Auto-pick successful", data: result });
 });
 
-export const DraftController = {
-  createDraft,
-  getAllDraft,
-  getDraftById,
-  updateDraft,
-  deleteDraft,
-};
+export const DraftController = { getDraftSession, getAvailableFighters, startDraft, pickFighter, autoPick };

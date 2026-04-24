@@ -1,1 +1,4 @@
-export interface ITeam {}
+export interface ITeamUpdatePayload {
+  name?: string;
+  iconGlyph?: string;
+}

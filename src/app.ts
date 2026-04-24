@@ -1,51 +1,60 @@
 import cors from "cors";
 import express, { Application, Request, Response } from "express";
+import swaggerUi from "swagger-ui-express";
 import config from "./config/index.js";
+import { swaggerSpec } from "./config/swagger.js";
 import router from "./app/routes/index.js";
+import rateLimiter from "./app/middlewares/rateLimiter.js";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler.js";
 import notFound from "./app/middlewares/notFound.js";
-import { getIO } from "./helpers/socketHelper.js";
 
 const app: Application = express();
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "https://fixmincykel.dk",
+    origin: config.cors_origin || "http://localhost:3000",
     credentials: true,
-  }),
+  })
 );
-//parser
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use(express.static("uploads"));
 
-app.use("/api/v1", router);
+// ─── Swagger UI ───────────────────────────────────────────────────────────────
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, {
+    customSiteTitle: "Fantasy UFC API Docs",
+    swaggerOptions: { persistAuthorization: true },
+  })
+);
 
-app.post("/send-job", (req, res) => {
-  const { roomId, jobId, message } = req.body;
-
-  try {
-    const io = getIO();
-    io.to(roomId).emit("newJob", { jobId, message });
-
-    res.json({ success: true, message: `Job sent to room ${roomId}` });
-  } catch (error: any) {
-    console.error(error);
-    res.status(500).json({ success: false, error: error.message });
-  }
+// Expose raw spec for tools like Postman
+app.get("/api-docs.json", (_req, res) => {
+  res.setHeader("Content-Type", "application/json");
+  res.send(swaggerSpec);
 });
 
-app.get("/", (req: Request, res: Response) => {
-  res.send({
-    message: "Server is running..",
+// ─── Rate Limiting (sliding window, 100 req/min per IP) ─────────────────────
+app.use(rateLimiter);
+
+// ─── API Routes ───────────────────────────────────────────────────────────────
+app.use("/api/v1", router);
+
+// ─── Health Check ─────────────────────────────────────────────────────────────
+app.get("/", (_req: Request, res: Response) => {
+  res.json({
+    message: "Fantasy UFC League API is running 🥊",
+    docs: "/api-docs",
     environment: config.node_env,
-    uptime: process.uptime().toFixed(2) + " sec",
-    timeStamp: new Date().toISOString(),
+    uptime: process.uptime().toFixed(2) + "s",
+    timestamp: new Date().toISOString(),
   });
 });
 
 app.use(globalErrorHandler);
-
 app.use(notFound);
 
 export default app;

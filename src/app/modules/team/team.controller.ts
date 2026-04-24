@@ -1,65 +1,26 @@
-import { Request, Response } from 'express';
-import catchAsync from '../../shared/catchAsync.js';
-import sendResponse from '../../shared/sendResponse.js';
-import { TeamService } from './team.service.js';
+import { Request, Response } from "express";
+import catchAsync from "../../shared/catchAsync.js";
+import sendResponse from "../../shared/sendResponse.js";
+import { TeamService } from "./team.service.js";
 
-const createTeam = catchAsync(async (req: Request, res: Response) => {
-  const result = await TeamService.createTeam(req.body);
-  sendResponse(res, {
-    statusCode: 201,
-    success: true,
-    message: 'Team created successfully',
-    data: result,
-  });
-});
-
-const getAllTeam = catchAsync(async (req: Request, res: Response) => {
-  const result = await TeamService.getAllTeam();
-  sendResponse(res, {
-    statusCode: 200,
-    success: true,
-    message: 'Teams retrieved successfully',
-    data: result,
-  });
+const getMyTeams = catchAsync(async (req: Request, res: Response) => {
+  const result = await TeamService.getMyTeams(req.user.id);
+  sendResponse(res, { statusCode: 200, success: true, message: "My teams retrieved successfully", data: result });
 });
 
 const getTeamById = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const result = await TeamService.getTeamById(id);
-  sendResponse(res, {
-    statusCode: 200,
-    success: true,
-    message: 'Team retrieved successfully',
-    data: result,
-  });
+  const result = await TeamService.getTeamById(req.params.id, req.user.id, req.user.role);
+  sendResponse(res, { statusCode: 200, success: true, message: "Team retrieved successfully", data: result });
+});
+
+const getLeaderboard = catchAsync(async (req: Request, res: Response) => {
+  const result = await TeamService.getLeaderboard(req.params.leagueId);
+  sendResponse(res, { statusCode: 200, success: true, message: "Leaderboard retrieved successfully", data: result });
 });
 
 const updateTeam = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const result = await TeamService.updateTeam(id, req.body);
-  sendResponse(res, {
-    statusCode: 200,
-    success: true,
-    message: 'Team updated successfully',
-    data: result,
-  });
+  const result = await TeamService.updateTeam(req.params.id, req.user.id, req.body);
+  sendResponse(res, { statusCode: 200, success: true, message: "Team updated successfully", data: result });
 });
 
-const deleteTeam = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const result = await TeamService.deleteTeam(id);
-  sendResponse(res, {
-    statusCode: 200,
-    success: true,
-    message: 'Team deleted successfully',
-    data: result,
-  });
-});
-
-export const TeamController = {
-  createTeam,
-  getAllTeam,
-  getTeamById,
-  updateTeam,
-  deleteTeam,
-};
+export const TeamController = { getMyTeams, getTeamById, getLeaderboard, updateTeam };

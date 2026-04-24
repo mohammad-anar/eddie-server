@@ -9,6 +9,15 @@ datasource db {
   extensions = [postgis]
 }
 
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum TradeStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  VETOED
+}
+
 model User {
   id           String    @id @default(cuid())
   email        String    @unique
@@ -152,6 +161,7 @@ model League {
   rosterSize  Int          @default(5)
   status      LeagueStatus @default(DRAFTING)
   draftTime   DateTime?
+  isSystemGenerated Boolean  @default(false)
   deletedAt   DateTime?
 
   createdAt DateTime @default(now())

@@ -18,14 +18,12 @@ const transporter = nodemailer.createTransport({
   tls: {
     rejectUnauthorized: false,
   },
-  logger: true,
-  debug: true,
 });
 
 const sendEmail = async (values: ISendEmail) => {
   try {
     const info = await transporter.sendMail({
-      from: `"FixMinCykel" <${config.email.from}>`,
+      from: `"Fantasy MMA" <${config.email.from}>`,
       to: values.to,
       subject: values.subject,
       html: values.html,

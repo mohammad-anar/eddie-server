@@ -1,10 +1,13 @@
 export interface IUser {
   name: string;
+  username: string;
   email: string;
+  passwordHash: string;
   phone?: string;
-  password: string;
-  avatar?: string;
-  address?: string;
+  avatarUrl?: string;
+  bio?: string;
+  location?: string;
+  timezone?: string;
 }
 
 export interface IVerifyEmail {
@@ -17,13 +20,25 @@ export interface ILogin {
   password: string;
 }
 
-export interface IAuthResetPassword {
-  newPassword: string;
-  confirmPassword: string;
+export interface IRegister {
+  name: string;
+  username: string;
+  email: string;
+  password: string;
+  phone?: string;
+  avatarUrl?: string;
+  bio?: string;
+  location?: string;
+  timezone?: string;
 }
 
 export interface IChangePassword {
-  currentPassword: string;
+  oldPassword: string;
   newPassword: string;
-  confirmPassword: string;
+}
+
+export interface IUserFilterRequest {
+  searchTerm?: string;
+  role?: string;
+  isVerified?: boolean;
 }

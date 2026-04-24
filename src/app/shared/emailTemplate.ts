@@ -1,5 +1,5 @@
 import config from "../../config/index.js";
-import { IContact, ICreateAccount, IResetPassword, IWorkshopContact } from "../../types/emailTamplate.js";
+import { ICreateAccount, IResetPassword } from "../../types/emailTamplate.js";
 
 const PRIMARY_COLOR = "#00C6CF";
 
@@ -16,7 +16,7 @@ const baseTemplate = (content: string) => `
           <tr>
             <td align="center" style="padding-bottom:20px;">
               <h1 style="margin:0; font-size:22px; color:${PRIMARY_COLOR}; font-weight:700;">
-                FixMinCykel
+                Fantasy MMA
               </h1>
             </td>
           </tr>
@@ -42,8 +42,7 @@ const baseTemplate = (content: string) => `
               <p style="font-size:13px; color:#888888; line-height:1.6; margin:0;">
                 If you have any questions, contact our support team.
               </p>
-              <p style="font-size:12px; color:#bbbbbb; margin-top:10px;">
-                © ${new Date().getFullYear()} FixMinCykel. All rights reserved.
+                © ${new Date().getFullYear()} Fantasy MMA. All rights reserved.
               </p>
             </td>
           </tr>
@@ -65,7 +64,7 @@ const createAccount = (values: ICreateAccount) => {
     </h2>
 
     <p style="font-size:15px; line-height:1.7; color:#555; margin-bottom:25px;">
-      Thank you for creating an account with FixMinCykel.
+      Thank you for creating an account with Fantasy MMA.
       Please use the verification code below to activate your account.
     </p>
 
@@ -94,7 +93,7 @@ const createAccount = (values: ICreateAccount) => {
 
   return {
     to: values.email,
-    subject: "Verify your FixMinCykel account",
+    subject: "Verify your Fantasy MMA account",
     html: baseTemplate(content),
   };
 };
@@ -137,7 +136,7 @@ const resetPassword = (values: IResetPassword) => {
 
   return {
     to: values.email,
-    subject: "Reset your FixMinCykel password",
+    subject: "Reset your Fantasy MMA password",
     html: baseTemplate(content),
   };
 };
@@ -185,133 +184,8 @@ const forgetPassword = (values: { email: string; token: string }) => {
     html: baseTemplate(content),
   };
 };
-const forgetPasswordWorkshop = (values: { email: string; token: string }) => {
-  const content = `
-    <h2 style="margin:0 0 20px 0; font-size:20px; color:#222;">
-      Reset Your Password
-    </h2>
-
-    <p style="font-size:15px; line-height:1.7; color:#555; margin-bottom:25px;">
-      Click the button below to securely reset your password.
-    </p>
-
-    <div style="text-align:center; margin:30px 0;">
-      <a href="${config.frontend_url}/service-provider/reset-password?token=${values.token}"
-         style="
-           background:${PRIMARY_COLOR};
-           color:#ffffff;
-           text-decoration:none;
-           padding:14px 30px;
-           border-radius:8px;
-           font-size:15px;
-           font-weight:600;
-           display:inline-block;">
-         Reset Password
-      </a>
-    </div>
-
-    <p style="font-size:13px; color:#777;">
-      This link will expire shortly for security reasons.
-    </p>
-
-    <p style="font-size:13px; color:#999; margin-top:15px;">
-      If you didn’t request this password reset, you can ignore this email.
-    </p>
-  `;
-
-  return {
-    to: values.email,
-    subject: "Password Reset Request",
-    html: baseTemplate(content),
-  };
-};
-
-// ==========================
-// 📧 CONTACT ADMIN TEMPLATE
-// ==========================
-const contactAdmin = (values: IContact) => {
-  const content = `
-    <h2 style="margin:0 0 20px 0; font-size:20px; color:#222;">
-      New Contact Form Submission
-    </h2>
-
-    <div style="background:#f9f9f9; padding:20px; border-radius:8px; border-left:4px solid ${PRIMARY_COLOR};">
-      <p style="margin:0 0 10px 0; font-size:14px; color:#555;">
-        <strong>Full Name:</strong> ${values.fullName}
-      </p>
-      <p style="margin:0 0 10px 0; font-size:14px; color:#555;">
-        <strong>Address:</strong> ${values.address}
-      </p>
-      <p style="margin:0 0 10px 0; font-size:14px; color:#555;">
-        <strong>Email:</strong> ${values.email}
-      </p>
-      <p style="margin:0 0 10px 0; font-size:14px; color:#555;">
-        <strong>Phone Number:</strong> ${values.phoneNumber}
-      </p>
-      <p style="margin:0; font-size:14px; color:#555;">
-        <strong>Message:</strong><br>
-        <span style="display:inline-block; margin-top:5px; line-height:1.6;">
-          ${values.message}
-        </span>
-      </p>
-    </div>
-
-    <p style="font-size:13px; color:#999; margin-top:25px;">
-      This email was sent from the website contact form.
-    </p>
-  `;
-
-  return {
-    to: config.email.user, // Sent to admin
-    subject: `New Contact Message from ${values.fullName}`,
-    html: baseTemplate(content),
-  };
-};
-
-// ==========================
-// 📧 WORKSHOP CONTACT TEMPLATE
-// ==========================
-const workshopContactAdmin = (values: IWorkshopContact) => {
-  const content = `
-    <h2 style="margin:0 0 20px 0; font-size:20px; color:#222;">
-      New Workshop Contact Submission
-    </h2>
-
-    <div style="background:#f9f9f9; padding:20px; border-radius:8px; border-left:4px solid ${PRIMARY_COLOR};">
-      <p style="margin:0 0 10px 0; font-size:14px; color:#555;">
-        <strong>Company Name:</strong> ${values.companyName}
-      </p>
-      <p style="margin:0 0 10px 0; font-size:14px; color:#555;">
-        <strong>Full Name:</strong> ${values.fullName}
-      </p>
-      <p style="margin:0 0 10px 0; font-size:14px; color:#555;">
-        <strong>Phone:</strong> ${values.phone}
-      </p>
-      <p style="margin:0; font-size:14px; color:#555;">
-        <strong>Additional Information:</strong><br>
-        <span style="display:inline-block; margin-top:5px; line-height:1.6;">
-          ${values.additionalInfo || "N/A"}
-        </span>
-      </p>
-    </div>
-
-    <p style="font-size:13px; color:#999; margin-top:25px;">
-      This email was sent from the workshop contact form.
-    </p>
-  `;
-
-  return {
-    to: config.email.user, // Sent to admin
-    subject: `New Workshop Contact from ${values.companyName}`,
-    html: baseTemplate(content),
-  };
-};
-
 export const emailTemplate = {
   createAccount,
   resetPassword,
   forgetPassword,
-  forgetPasswordWorkshop,
-  contactAdmin,
-  workshopContactAdmin,
 };

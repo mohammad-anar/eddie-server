@@ -1,25 +1,185 @@
-import express from 'express';
-import { LeagueController } from './league.controller.js';
-import validateRequest from '../../middlewares/validateRequest.js';
-import { LeagueValidation } from './league.validation.js';
+import express from "express";
+import { LeagueController } from "./league.controller.js";
+import validateRequest from "../../middlewares/validateRequest.js";
+import { LeagueValidation } from "./league.validation.js";
+import auth from "../../middlewares/auth.js";
+import { Role } from "../../../types/enum.js";
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * tags:
+ *   name: Leagues
+ *   description: Fantasy league creation, joining, and management
+ */
+
+/**
+ * @swagger
+ * /league:
+ *   get:
+ *     tags: [Leagues]
+ *     summary: Get all public active leagues (paginated)
+ *     security: []
+ *     parameters:
+ *       - in: query
+ *         name: searchTerm
+ *         schema: { type: string }
+ *       - in: query
+ *         name: leagueType
+ *         schema: { type: string, enum: [PUBLIC, PRIVATE] }
+ *       - in: query
+ *         name: status
+ *         schema: { type: string, enum: [DRAFTING, ACTIVE, COMPLETED, ARCHIVED] }
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer, default: 1 }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 10 }
+ *     responses:
+ *       200:
+ *         description: Paginated league list (passcodes masked)
+ *   post:
+ *     tags: [Leagues]
+ *     summary: Create a new league
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/LeagueBody'
+ *     responses:
+ *       201:
+ *         description: League created with scoring settings and draft session
+ */
+router.get("/", LeagueController.getAllLeagues);
+
+/**
+ * @swagger
+ * /league/my/leagues:
+ *   get:
+ *     tags: [Leagues]
+ *     summary: Get leagues the authenticated user has joined
+ *     responses:
+ *       200:
+ *         description: User's leagues with their team in each
+ */
+router.get("/my/leagues", auth(Role.USER, Role.ADMIN), LeagueController.getMyLeagues);
+
 router.post(
-  '/',
+  "/",
+  auth(Role.USER, Role.ADMIN),
   validateRequest(LeagueValidation.createLeagueZodSchema),
   LeagueController.createLeague
 );
 
-router.get('/', LeagueController.getAllLeague);
-router.get('/:id', LeagueController.getLeagueById);
+/**
+ * @swagger
+ * /league/join:
+ *   post:
+ *     tags: [Leagues]
+ *     summary: Join a league by code (and passcode if private)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/JoinLeagueBody'
+ *     responses:
+ *       200:
+ *         description: Successfully joined, team auto-created
+ *       403:
+ *         description: Invalid passcode
+ *       409:
+ *         description: Already a member
+ */
+router.post(
+  "/join",
+  auth(Role.USER, Role.ADMIN),
+  validateRequest(LeagueValidation.joinLeagueZodSchema),
+  LeagueController.joinLeague
+);
+
+/**
+ * @swagger
+ * /league/join-quick:
+ *   post:
+ *     tags: [Leagues]
+ *     summary: Auto-join a system-generated league (creates one if none available)
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               teamName: { type: string, example: "My Team" }
+ *     responses:
+ *       200:
+ *         description: Joined a quick league
+ */
+router.post("/join-quick", auth(Role.USER, Role.ADMIN), LeagueController.joinQuickLeague);
+
+/**
+ * @swagger
+ * /league/{id}:
+ *   get:
+ *     tags: [Leagues]
+ *     summary: Get league by ID with teams sorted by total points
+ *     security: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: League details with leaderboard
+ *       404:
+ *         description: League not found
+ *   patch:
+ *     tags: [Leagues]
+ *     summary: Update league settings (manager only)
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name: { type: string }
+ *               draftTime: { type: string, format: date-time }
+ *               secondsPerPick: { type: integer }
+ *     responses:
+ *       200:
+ *         description: League updated
+ *       403:
+ *         description: Not the league manager
+ *   delete:
+ *     tags: [Leagues]
+ *     summary: Soft-delete league (manager or Admin)
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: League deleted
+ */
+router.get("/:id", LeagueController.getLeagueById);
 
 router.patch(
-  '/:id',
+  "/:id",
+  auth(Role.USER, Role.ADMIN),
   validateRequest(LeagueValidation.updateLeagueZodSchema),
   LeagueController.updateLeague
 );
 
-router.delete('/:id', LeagueController.deleteLeague);
+router.delete("/:id", auth(Role.USER, Role.ADMIN), LeagueController.deleteLeague);
 
 export const LeagueRouter = router;
