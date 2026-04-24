@@ -12,6 +12,31 @@ type IPaginationOptions = {
   sortOrder?: string;
 };
 
+// ─── Draft Timer State ────────────────────────────────────────────────────────
+
+const draftTimers = new Map<string, NodeJS.Timeout>();
+
+const clearDraftTimer = (leagueId: string) => {
+  if (draftTimers.has(leagueId)) {
+    clearTimeout(draftTimers.get(leagueId)!);
+    draftTimers.delete(leagueId);
+  }
+};
+
+const scheduleDraftTimer = (leagueId: string, teamId: string, seconds: number) => {
+  clearDraftTimer(leagueId);
+  const timeout = setTimeout(async () => {
+    try {
+      console.log(`[Draft Timer] Expired for league ${leagueId}. Auto-picking for team ${teamId}...`);
+      // We must call the DraftService.autoPick to handle it
+      await DraftService.autoPick(leagueId, teamId);
+    } catch (error) {
+      console.error(`[Draft Timer] Auto-pick failed for league ${leagueId}:`, error);
+    }
+  }, seconds * 1000);
+  draftTimers.set(leagueId, timeout);
+};
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /** Build the list of already-picked fighter IDs for a draft session */
@@ -209,6 +234,9 @@ const startDraft = async (
     turnStartedAt: result.turnStartedAt,
   });
 
+  const firstPickTeamId = result.draftOrder[0].teamId;
+  scheduleDraftTimer(leagueId, firstPickTeamId, result.secondsPerPick);
+
   return result;
 };
 
@@ -342,6 +370,28 @@ const pickFighter = async (
     turnStartedAt: new Date(),
   });
 
+  if (result.session.status === "COMPLETED") {
+    clearDraftTimer(leagueId);
+  } else {
+    const nextTeamId = result.session.draftOrder[result.session.currentPickIndex]?.teamId;
+    if (nextTeamId) {
+      prisma.team.findUnique({
+        where: { id: nextTeamId },
+        select: { ownerId: true }
+      }).then((nextTeam) => {
+        if (nextTeam) {
+          prisma.leagueMember.findUnique({
+            where: { leagueId_userId: { leagueId, userId: nextTeam.ownerId } },
+            select: { isAutoPickEnabled: true }
+          }).then((member) => {
+            const waitTime = member?.isAutoPickEnabled ? 1 : result.session.secondsPerPick;
+            scheduleDraftTimer(leagueId, nextTeamId, waitTime);
+          });
+        }
+      });
+    }
+  }
+
   return result;
 };
 
@@ -408,6 +458,30 @@ const autoPick = async (leagueId: string, teamId: string) => {
     isDraftComplete: result.session.status === "COMPLETED",
     turnStartedAt: new Date(),
   });
+
+  if (result.session.status === "COMPLETED") {
+    clearDraftTimer(leagueId);
+  } else {
+    const nextTeamId = result.session.draftOrder[result.session.currentPickIndex]?.teamId;
+    if (nextTeamId) {
+      // Check if the next user is also on auto-pick
+      prisma.team.findUnique({
+        where: { id: nextTeamId },
+        select: { ownerId: true }
+      }).then((nextTeam) => {
+        if (nextTeam) {
+          prisma.leagueMember.findUnique({
+            where: { leagueId_userId: { leagueId, userId: nextTeam.ownerId } },
+            select: { isAutoPickEnabled: true }
+          }).then((member) => {
+            // If they are flagged for auto-pick, schedule it instantly (1 second)
+            const waitTime = member?.isAutoPickEnabled ? 1 : result.session.secondsPerPick;
+            scheduleDraftTimer(leagueId, nextTeamId, waitTime);
+          });
+        }
+      });
+    }
+  }
 
   return result;
 };
