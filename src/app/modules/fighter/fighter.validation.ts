@@ -20,11 +20,9 @@ const createFighterZodSchema = z.object({
     titleDefenses: z.number().int().optional(),
     formerChampionDivisions: z.array(z.string()).optional(),
     isActive: z.boolean().optional(),
-
 });
 
 const updateFighterZodSchema = z.object({
-
     name: z.string().optional(),
     nationality: z.string().optional(),
     divisionId: z.string().optional(),
@@ -44,10 +42,9 @@ const updateFighterZodSchema = z.object({
     titleDefenses: z.number().int().optional(),
     formerChampionDivisions: z.array(z.string()).optional(),
     isActive: z.boolean().optional(),
-
 });
 
 export const FighterValidation = {
-  createFighterZodSchema,
-  updateFighterZodSchema,
+    createFighterZodSchema,
+    updateFighterZodSchema,
 };

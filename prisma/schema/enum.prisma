@@ -43,3 +43,15 @@ enum NotificationType {
   TRADE_OFFER
   SYSTEM
 }
+
+enum TradeStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  VETOED
+}
+
+enum TradeSide {
+  SENDER_OFFERS
+  RECEIVER_OFFERS
+}
