@@ -5,6 +5,8 @@ import { EventValidation } from "./event.validation.js";
 import auth from "../../middlewares/auth.js";
 import { Role } from "../../../types/enum.js";
 
+import fileUploadHandler from "../../middlewares/fileUploadHandler.js";
+
 const router = express.Router();
 
 /**
@@ -43,9 +45,17 @@ const router = express.Router();
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
- *             $ref: '#/components/schemas/EventBody'
+ *             type: object
+ *             required: [data]
+ *             properties:
+ *               data:
+ *                 $ref: '#/components/schemas/EventBody'
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: Event poster image
  *     responses:
  *       201:
  *         description: Event created
@@ -55,6 +65,13 @@ router.get("/", EventController.getAllEvents);
 router.post(
   "/",
   auth(Role.ADMIN),
+  fileUploadHandler(),
+  (req, res, next) => {
+    if (req.body.data) {
+      req.body = JSON.parse(req.body.data);
+    }
+    next();
+  },
   validateRequest(EventValidation.createEventZodSchema),
   EventController.createEvent
 );
@@ -86,9 +103,17 @@ router.post(
  *         schema: { type: string }
  *     requestBody:
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
- *             $ref: '#/components/schemas/EventBody'
+ *             type: object
+ *             required: [data]
+ *             properties:
+ *               data:
+ *                 $ref: '#/components/schemas/EventBody'
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: Updated event poster image
  *     responses:
  *       200:
  *         description: Event updated
@@ -109,6 +134,13 @@ router.get("/:id", EventController.getEventById);
 router.patch(
   "/:id",
   auth(Role.ADMIN),
+  fileUploadHandler(),
+  (req, res, next) => {
+    if (req.body.data) {
+      req.body = JSON.parse(req.body.data);
+    }
+    next();
+  },
   validateRequest(EventValidation.updateEventZodSchema),
   EventController.updateEvent
 );

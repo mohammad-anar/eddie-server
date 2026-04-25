@@ -3,8 +3,13 @@ import catchAsync from "../../shared/catchAsync.js";
 import sendResponse from "../../shared/sendResponse.js";
 import pick from "../../../helpers/pick.js";
 import { EventService } from "./event.service.js";
+import { getSingleFilePath } from "../../shared/getFilePath.js";
 
 const createEvent = catchAsync(async (req: Request, res: Response) => {
+  const image = getSingleFilePath(req.files, "image");
+  if (image) {
+    req.body.posterUrl = image;
+  }
   const result = await EventService.createEvent(req.body);
   sendResponse(res, { statusCode: 201, success: true, message: "Event created successfully", data: result });
 });
@@ -22,6 +27,10 @@ const getEventById = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateEvent = catchAsync(async (req: Request, res: Response) => {
+  const image = getSingleFilePath(req.files, "image");
+  if (image) {
+    req.body.posterUrl = image;
+  }
   const result = await EventService.updateEvent(req.params.id, req.body);
   sendResponse(res, { statusCode: 200, success: true, message: "Event updated successfully", data: result });
 });
