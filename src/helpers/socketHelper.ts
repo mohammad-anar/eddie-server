@@ -62,8 +62,8 @@ export const initSocket = (server: any) => {
         }
 
         const league = await prisma.league.findUnique({ where: { id: leagueId }, select: { status: true } });
-        if (league?.status === "LOCKED") {
-          throw new ApiError(StatusCodes.LOCKED, "This specific league is currently locked.");
+        if (league?.status !== "DRAFTING") {
+          throw new ApiError(StatusCodes.LOCKED, "This specific league is not currently drafting.");
         }
 
         // 2. Execute the pick

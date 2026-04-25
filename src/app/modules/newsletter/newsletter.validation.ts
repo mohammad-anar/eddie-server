@@ -2,8 +2,8 @@ import { z } from "zod";
 
 const createNewsletterZodSchema = z.object({
   body: z.object({
-    title: z.string({ required_error: "Title is required" }),
-    description: z.string({ required_error: "Description is required" }),
+    title: z.string("Title is required"),
+    description: z.string("Description is required"),
   }),
 });
 

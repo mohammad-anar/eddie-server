@@ -4,7 +4,7 @@ import validateRequest from "../../middlewares/validateRequest.js";
 import { NewsletterValidation } from "./newsletter.validation.js";
 import auth from "../../middlewares/auth.js";
 import { Role } from "@prisma/client";
-import { fileUploadHandler } from "../../middlewares/fileUploadHandler.js";
+import fileUploadHandler from "../../middlewares/fileUploadHandler.js";
 
 const router = express.Router();
 
