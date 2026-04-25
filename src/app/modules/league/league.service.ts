@@ -249,47 +249,102 @@ const joinLeague = async (userId: string, payload: IJoinLeaguePayload) => {
 };
 
 const joinQuickLeague = async (userId: string, teamName: string) => {
-  // Find an existing system-generated league that isn't full
-  const available = await prisma.league.findFirst({
+  // 1. Check if user is already in an active system-generated league
+  const existingMembership = await prisma.leagueMember.findFirst({
     where: {
-      status: "DRAFTING",
-      deletedAt: null,
-      isSystemGenerated: true,
-      members: { none: { userId } },
+      userId,
+      league: {
+        isSystemGenerated: true,
+        status: { notIn: ["COMPLETED", "ARCHIVED"] },
+        deletedAt: null,
+      },
     },
-    include: { _count: { select: { members: true } } },
-    orderBy: { createdAt: "asc" },
+    include: { league: true },
   });
 
-  let targetLeague = available;
+  if (existingMembership) {
+    throw new ApiError(409, "You are already a member of an active system-generated league");
+  }
 
-  if (!targetLeague || (targetLeague as any)._count.members >= targetLeague.memberLimit) {
-    // Create a new system-generated league
-    const code = generateCode();
-    targetLeague = await prisma.league.create({
-      data: {
-        name: `Quick League ${Date.now()}`,
-        code,
-        managerId: userId,
-        memberLimit: 10,
-        rosterSize: 5,
-        status: "DRAFTING",
-        isSystemGenerated: true,
-      },
-      include: { _count: { select: { members: true } } },
-    });
+  // 2. Find the one and only active system-generated league that isn't full
+  const candidateLeagues = await prisma.league.findMany({
+    where: {
+      isSystemGenerated: true,
+      status: "DRAFTING",
+      deletedAt: null,
+    },
+    include: { _count: { select: { members: true } } },
+    orderBy: { createdAt: "desc" },
+  });
 
-    await prisma.leagueScoringSettings.create({ data: { leagueId: targetLeague.id } });
-    await prisma.draftSession.create({
-      data: { leagueId: targetLeague.id, status: "WAITING", secondsPerPick: 60, totalRounds: 5 },
+  let targetLeague = candidateLeagues.find(
+    (l) => l._count.members < l.memberLimit
+  );
+
+  // 3. Create a new one if no available league exists
+  if (!targetLeague) {
+    let code = generateCode();
+    while (await prisma.league.findUnique({ where: { code } })) {
+      code = generateCode();
+    }
+
+    targetLeague = await prisma.$transaction(async (tx) => {
+      const newLeague = await tx.league.create({
+        data: {
+          name: "UFC Quick League",
+          code,
+          managerId: userId, // First joiner is technically manager, though it's system-generated
+          memberLimit: 10,
+          rosterSize: 5,
+          status: "DRAFTING",
+          isSystemGenerated: true,
+        },
+      });
+
+      await tx.leagueScoringSettings.create({ data: { leagueId: newLeague.id } });
+      await tx.draftSession.create({
+        data: {
+          leagueId: newLeague.id,
+          status: "WAITING",
+          secondsPerPick: 60,
+          totalRounds: 5,
+        },
+      });
+
+      return { ...newLeague, _count: { members: 0 } };
     });
   }
 
+  // 4. Atomic join within a transaction to handle concurrency
   return prisma.$transaction(async (tx) => {
-    await tx.leagueMember.create({ data: { leagueId: targetLeague!.id, userId } });
-    const team = await tx.team.create({
-      data: { leagueId: targetLeague!.id, ownerId: userId, name: teamName },
+    // Re-verify membership and count inside transaction
+    const [isMember, currentCount] = await Promise.all([
+      tx.leagueMember.findUnique({
+        where: { leagueId_userId: { leagueId: targetLeague!.id, userId } },
+      }),
+      tx.leagueMember.count({ where: { leagueId: targetLeague!.id } }),
+    ]);
+
+    if (isMember) {
+      throw new ApiError(409, "You are already a member of this league");
+    }
+
+    if (currentCount >= targetLeague!.memberLimit) {
+      throw new ApiError(400, "The league just filled up. Please try again.");
+    }
+
+    await tx.leagueMember.create({
+      data: { leagueId: targetLeague!.id, userId },
     });
+
+    const team = await tx.team.create({
+      data: {
+        leagueId: targetLeague!.id,
+        ownerId: userId,
+        name: teamName,
+      },
+    });
+
     return { league: targetLeague, team };
   });
 };
