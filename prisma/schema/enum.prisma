@@ -126,3 +126,15 @@ enum MediaType {
   VIDEO
   DOCUMENT
 }
+
+enum GameReportPaymentStatus {
+  PAID
+  UNPAID
+  DUE
+}
+
+enum GameReportStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}

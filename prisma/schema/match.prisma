@@ -103,12 +103,17 @@ model GameReport {
   matchImages     String[]
   isApproaved Boolean @default(false)
 
+  status GameReportStatus @default(PENDING)
+  paymentStatus GameReportPaymentStatus @default(UNPAID);
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([playerId])
   @@map("game_reports")
 }
+
+
 
 model MatchStatistics {
   id      String @id @default(uuid())
