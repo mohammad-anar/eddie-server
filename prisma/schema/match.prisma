@@ -29,20 +29,14 @@ model Match {
   videoLink String?
   galleryImages String[]
   matchHighlights String[]
-
-
   referees String? 
-
-  matchCostId String?  @unique
-  matchCost   MatchCost? @relation(fields: [matchCostId], references: [id], onDelete: SetNull)
-
   additionalNotes String?
 
   // Relations
   gameReport      GameReport?
   matchStatistics MatchStatistics[]
   matchMedia      MatchMedia[]
-  extraEvents     ExtraEvents[]
+  matchCost       MatchCost[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -96,15 +90,14 @@ model GameReport {
   weather         String?   
   rating          Float?
   additionalNumber Int? @default(0)
-  paymentStatus   PaymentStatus @default(PENDING)
-  coachComment    CoachComment?  
+  coachComment    CoachComment?  @relation("GameReportComment")
   matchVideoLink  String? 
   matchHighlightClip  String?
   matchImages     String[]
   isApproaved Boolean @default(false)
 
   status GameReportStatus @default(PENDING)
-  paymentStatus GameReportPaymentStatus @default(UNPAID);
+  paymentStatus GameReportPaymentStatus @default(UNPAID)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -164,7 +157,6 @@ model ExtraEvents {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([matchId])
   @@index([academyId])
   @@map("extra_events")
 }
@@ -219,6 +211,8 @@ model CoachComment {
   playerId String
   player   Player  @relation(fields: [playerId], references: [id], onDelete: Cascade)
   comment  String?
+  gameReport GameReport? @relation("GameReportComment", fields: [gameReportId], references: [id])
+  gameReportId String? @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -297,22 +297,35 @@ model PlayerCV {
   id                    String   @id @default(uuid())
   playerId              String   @unique
   player                Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  
+  // Personal Information
   fullName              String?
+  avatar                String?
   nationality           String?
   flagImage             String?
-  email                 String?
   dob                   DateTime?
-  contact               String?
+  age                   Int?
+  gender                String?
+  email                 String?
+  contactPhone          String?
+  address               String?
+  socialPortfolioLink   String?
   languages             String?
-  footballAgentContract String?
+  
+  // Transfer Info
   transferFee           String?
+  releaseClause         String?
   salary                String?
+  
+  // Physical Stats
   height                Float?
   weight                Float?
   dominantFoot          String?
+  alternateFootRate     Int?
   position              String?
-  leftFootRate          Int?
-  rightFootRate         Int?
+  secondaryPositions    String?
+  
+  // Skills & Attributes (Technical)
   ballControl           Int?
   dribbling             Int?
   shortPassing          Int?
@@ -321,6 +334,8 @@ model PlayerCV {
   shooting              Int?
   finishing             Int?
   longShots             Int?
+  
+  // Tactical / Mental
   positioning           Int?
   vision                Int?
   anticipation          Int?
@@ -329,6 +344,8 @@ model PlayerCV {
   workRate              Int?
   decisions             Int?
   concentration         Int?
+  
+  // Physical Attributes
   acceleration          Int?
   sprintSpeed           Int?
   stamina               Int?
@@ -337,6 +354,8 @@ model PlayerCV {
   agility               Int?
   reactions             Int?
   jumping               Int?
+  
+  // Mental Skills
   aggression            Int?
   interceptions         Int?
   attPosition           Int?
@@ -345,12 +364,18 @@ model PlayerCV {
   determination         Int?
   flair                 Int?
   influence             Int?
+  
+  // Match History / Career Summary
   totalGamePlayed       Int?
   totalGoals            Int?
   totalAssists          Int?
+  avgRating             Float?
+  
+  // Professional Details
   achievements          String?
   coachValidation       String?
   academyReference      String?
+  footballAgentContract String?
 
   @@map("player_cvs")
 }
