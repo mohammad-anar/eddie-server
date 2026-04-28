@@ -26,6 +26,10 @@ model Match {
   kickoffAt DateTime
   venueName String?
   venueAddress String?
+  videoLink String?
+  galleryImages String[]
+  matchHighlights String[]
+
 
   referees String? 
 
@@ -93,6 +97,11 @@ model GameReport {
   rating          Float?
   additionalNumber Int? @default(0)
   paymentStatus   PaymentStatus @default(PENDING)
+  coachComment    CoachComment?  
+  matchVideoLink  String? 
+  matchHighlightClip  String?
+  matchImages     String[]
+  isApproaved Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -160,8 +169,10 @@ model TrainingSession {
   sessionName     String?
   teamId          String?
   team            Team?           @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  
   headCoachId     String?
   headCoach       Coach?          @relation(fields: [headCoachId], references: [id], onDelete: SetNull)
+  
   date            DateTime?
   startTime       String?
   endTime         String?
