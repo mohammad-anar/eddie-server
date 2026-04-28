@@ -21,6 +21,7 @@ model Club {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([leagueId])
   @@map("clubs")
 }
 
@@ -31,6 +32,7 @@ model ClubAchievement {
   year         Int?
   championship String?
 
+  @@index([clubId])
   @@map("club_achievements")
 }
 
@@ -69,6 +71,7 @@ model Academy {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([clubId])
   @@map("academies")
 }
 
@@ -81,6 +84,7 @@ model AcademyManager {
   ageGroup  String?
   status    String?
 
+  @@index([academyId])
   @@map("academy_managers")
 }
 
@@ -99,5 +103,7 @@ model Team {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([clubId])
+  @@index([academyId])
   @@map("teams")
 }

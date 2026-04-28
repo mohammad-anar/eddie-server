@@ -24,6 +24,11 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([userId])
+  @@index([playerId])
+  @@index([academyId])
+  @@index([clubId])
+  @@index([coachId])
   @@map("posts")
 }
 
@@ -33,6 +38,7 @@ model ImagePost {
   post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
   url    String
 
+  @@index([postId])
   @@map("image_posts")
 }
 
@@ -42,6 +48,7 @@ model VideoPost {
   post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
   url    String
 
+  @@index([postId])
   @@map("video_posts")
 }
 
@@ -56,6 +63,7 @@ model Article {
   academyId String?
   academy   Academy? @relation(fields: [academyId], references: [id], onDelete: SetNull)
 
+  @@index([academyId])
   @@map("articles")
 }
 

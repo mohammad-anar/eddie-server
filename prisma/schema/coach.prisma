@@ -25,6 +25,8 @@ model CoachPlayer {
   playerId String
   player   Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
 
+  @@index([coachId])
+  @@index([playerId])
   @@map("coach_players")
 }
 
@@ -35,5 +37,7 @@ model CoachTeam {
   teamId  String
   team    Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
+  @@index([coachId])
+  @@index([teamId])
   @@map("coach_teams")
 }

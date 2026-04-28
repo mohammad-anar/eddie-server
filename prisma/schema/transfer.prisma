@@ -32,5 +32,13 @@ model Transfer {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([playerId])
+  @@index([agentId])
+  @@index([sourceClubId])
+  @@index([sourceAcademyId])
+  @@index([destClubId])
+  @@index([destAcademyId])
+  @@index([status])
+  @@index([category])
   @@map("transfers")
 }

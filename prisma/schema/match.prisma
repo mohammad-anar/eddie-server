@@ -29,6 +29,8 @@ model Match {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([academyId])
+  @@index([leagueId])
   @@map("matches")
 }
 
@@ -53,6 +55,7 @@ model GameReport {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([playerId])
   @@map("game_reports")
 }
 
@@ -62,6 +65,7 @@ model MatchStatistics {
   match   Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
   // Specific stats can be added here
   
+  @@index([matchId])
   @@map("match_statistics")
 }
 
@@ -72,6 +76,7 @@ model MatchMedia {
   url     String
   type    String // Video, Image
 
+  @@index([matchId])
   @@map("match_media")
 }
 
@@ -100,6 +105,8 @@ model ExtraEvents {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([matchId])
+  @@index([academyId])
   @@map("extra_events")
 }
 
@@ -126,6 +133,8 @@ model TrainingSession {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([teamId])
+  @@index([headCoachId])
   @@map("training_sessions")
 }
 
@@ -137,6 +146,8 @@ model SessionPlayer {
   player      Player          @relation(fields: [playerId], references: [id], onDelete: Cascade)
   presentType String?         // Present, Absent, Late
 
+  @@index([sessionId])
+  @@index([playerId])
   @@map("session_players")
 }
 
@@ -151,5 +162,7 @@ model CoachComment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([coachId])
+  @@index([playerId])
   @@map("coach_comments")
 }

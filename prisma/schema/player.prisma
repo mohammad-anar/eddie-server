@@ -42,6 +42,9 @@ model Player {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([academyId])
+  @@index([clubId])
+  @@index([agentId])
   @@map("players")
 }
 
@@ -106,6 +109,7 @@ model Language {
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
 
+  @@index([playerId])
   @@map("languages")
 }
 
@@ -118,6 +122,7 @@ model Map {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([playerId])
   @@map("maps")
 }
 
@@ -130,6 +135,7 @@ model MarketValue {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([playerId])
   @@map("market_values")
 }
 
@@ -143,6 +149,7 @@ model CareerHighlight {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([playerId])
   @@map("career_highlights")
 }
 
@@ -158,6 +165,7 @@ model SeasonStats {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
+  @@index([playerId])
   @@map("season_stats")
 }
 
@@ -172,6 +180,7 @@ model SkillAttribute {
   tactical  Tactical?
   physical  Physical?
 
+  @@index([playerId])
   @@map("skill_attributes")
 }
 
@@ -297,6 +306,7 @@ model SuccessStory {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([playerId])
   @@map("success_stories")
 }
 
@@ -388,5 +398,6 @@ model PositionalCoEfficientRow {
   score         Int?
   grade         String?
 
+  @@index([coefficientId])
   @@map("positional_coefficient_rows")
 }
