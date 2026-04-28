@@ -52,18 +52,17 @@ model Academy {
   name               String
   logo               String?
   coverPhoto         String?
-  dateEstablishment  DateTime?
-  country            String?
-  countryFlag        String?
+  nationality        String?
+  nationalityFlag    String?
+  dateOfEstablishment  DateTime?
   city               String?
-  ageGroup           String?
-  phone              String?
-  email              String?
+  secondaryEmail     String?
+  secondaryPhone     String?
+  website            String?
   description        String?
   visionAndMission   String?
   trainingPhilosophy String?
-  status             String?          @default("PENDING")
-  
+  ageGroup           String?
   managers           AcademyManager[]
   teams              Team[]
   players            Player[]
@@ -86,12 +85,10 @@ model Academy {
 
 model AcademyManager {
   id        String  @id @default(uuid())
-  academyId String
-  academy   Academy @relation(fields: [academyId], references: [id], onDelete: Cascade)
   userId    String  @unique
   user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  ageGroup  String?
-  status    String?
+  academyId String
+  academy   Academy @relation(fields: [academyId], references: [id], onDelete: Cascade)
 
   @@index([academyId])
   @@map("academy_managers")
