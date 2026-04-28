@@ -1,0 +1,36 @@
+model Transfer {
+  id               String         @id @default(uuid())
+  playerId         String
+  player           Player         @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  
+  agentId          String?
+  agent            Agent?         @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  
+  // Source (Optional - could be free agent)
+  sourceClubId     String?
+  sourceClub       Club?          @relation("SourceClubTransfers", fields: [sourceClubId], references: [id], onDelete: SetNull)
+  sourceAcademyId  String?
+  sourceAcademy    Academy?       @relation("SourceAcademyTransfers", fields: [sourceAcademyId], references: [id], onDelete: SetNull)
+  
+  // Destination (Required)
+  destClubId       String?
+  destClub         Club?          @relation("DestClubTransfers", fields: [destClubId], references: [id], onDelete: SetNull)
+  destAcademyId    String?
+  destAcademy      Academy?       @relation("DestAcademyTransfers", fields: [destAcademyId], references: [id], onDelete: SetNull)
+  
+  transferFee      Float          @default(0)
+  commissionAmount Float          @default(0)
+  status           TransferStatus @default(PENDING)
+  category         TransferCategory
+  academyTransferType AcademyTransferType @default(NONE)
+  initiatorType    InitiatorType
+  
+  negotiationTerms String?
+  agreementDate    DateTime?
+  completionDate   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("transfers")
+}

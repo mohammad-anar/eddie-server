@@ -1,0 +1,39 @@
+model Coach {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  license         String?
+  experienceYears Int?
+  specialization  String?
+  
+  players         CoachPlayer[]
+  teams           CoachTeam[]
+  comments         CoachComment[]
+  trainingSessions TrainingSession[]
+  posts            Post[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("coaches")
+}
+
+model CoachPlayer {
+  id       String @id @default(uuid())
+  coachId  String
+  coach    Coach  @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  playerId String
+  player   Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@map("coach_players")
+}
+
+model CoachTeam {
+  id      String @id @default(uuid())
+  coachId String
+  coach   Coach  @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  teamId  String
+  team    Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@map("coach_teams")
+}

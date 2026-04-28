@@ -1,0 +1,155 @@
+model Match {
+  id              String           @id @default(uuid())
+  title           String?
+  academyId       String?
+  academy         Academy?         @relation(fields: [academyId], references: [id], onDelete: SetNull)
+  academyTeam     String?
+  opponentTeam    String?
+  matchType       String?
+  competitionName String?
+  venueName       String?
+  venueAddress    String?
+  awayOrHome      String?
+  date            DateTime?
+  kickOffTime     String?
+  referees        String?
+  transportCost   Float?
+  mealCost        Float?
+  otherCost       Float?
+  estimatedTotal  Float?
+  additionalNotes String?
+  leagueId        String?
+  league          League?          @relation(fields: [leagueId], references: [id], onDelete: SetNull)
+  
+  gameReport      GameReport?
+  matchStatistics MatchStatistics[]
+  matchMedia      MatchMedia[]
+  extraEvents     ExtraEvents[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("matches")
+}
+
+model GameReport {
+  id              String        @id @default(uuid())
+  matchId         String        @unique
+  match           Match         @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  playerId        String
+  player          Player        @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  opponent        String?
+  rating          Float?
+  paymentStatus   PaymentStatus @default(PENDING)
+  matchDate       DateTime?
+  matchPlayed     String?
+  minutesPlayed   Int?
+  manOfTheMatch   Boolean?      @default(false)
+  scoutName       String?
+  gameType        String?
+  gameDate        DateTime?
+  location        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("game_reports")
+}
+
+model MatchStatistics {
+  id      String @id @default(uuid())
+  matchId String
+  match   Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  // Specific stats can be added here
+  
+  @@map("match_statistics")
+}
+
+model MatchMedia {
+  id      String @id @default(uuid())
+  matchId String
+  match   Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  url     String
+  type    String // Video, Image
+
+  @@map("match_media")
+}
+
+model ExtraEvents {
+  id              String    @id @default(uuid())
+  matchId         String?
+  match           Match?    @relation(fields: [matchId], references: [id], onDelete: SetNull)
+  academyId       String?
+  academy         Academy?  @relation(fields: [academyId], references: [id], onDelete: SetNull)
+  name            String?
+  type            String?
+  targetAttendees String?
+  date            DateTime?
+  startTime       String?
+  endTime         String?
+  regDeadline     DateTime?
+  venue           String?
+  maxCapacity     Int?
+  description     String?
+  requirements    String?
+  contactName     String?
+  contactEmail    String?
+  contactPhone    String?
+  image           String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("extra_events")
+}
+
+model TrainingSession {
+  id              String          @id @default(uuid())
+  sessionName     String?
+  teamId          String?
+  team            Team?           @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  headCoachId     String?
+  headCoach       Coach?          @relation(fields: [headCoachId], references: [id], onDelete: SetNull)
+  date            DateTime?
+  startTime       String?
+  endTime         String?
+  location        String?
+  sessionType     String?
+  focusArea       String?
+  maxParticipants Int?
+  description     String?
+  requiredEquip   String?
+  additionalNotes String?
+  
+  players         SessionPlayer[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("training_sessions")
+}
+
+model SessionPlayer {
+  id          String          @id @default(uuid())
+  sessionId   String
+  session     TrainingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  playerId    String
+  player      Player          @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  presentType String?         // Present, Absent, Late
+
+  @@map("session_players")
+}
+
+model CoachComment {
+  id       String  @id @default(uuid())
+  coachId  String
+  coach    Coach   @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  playerId String
+  player   Player  @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  comment  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("coach_comments")
+}

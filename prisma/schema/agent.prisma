@@ -1,0 +1,23 @@
+model Agent {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  agencyName      String?
+  licenseNumber   String?
+  experienceYears Int?
+  specialization  String?
+  
+  verificationStatus AgentVerificationStatus @default(PENDING)
+  commissionRate     Float?                   @default(0) // percentage
+  
+  clubId          String?
+  club            Club?    @relation(fields: [clubId], references: [id], onDelete: SetNull)
+  
+  players         Player[]
+  transfers       Transfer[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("agents")
+}

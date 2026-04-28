@@ -1,0 +1,63 @@
+model SubscriptionPlan {
+  id        String   @id @default(uuid())
+  name      String
+  category  String?
+  duration  String?
+  status    String?
+  price     Float?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("subscription_plans")
+}
+
+model Sponsor {
+  id                    String   @id @default(uuid())
+  companyName           String
+  contactPersonName     String?
+  contactPersonEmail    String?
+  contactPersonPhone    String?
+  contactPersonAddress  String?
+  sponsorType           String?
+  status                String?
+  contractValue         Float?
+  paymentStatus         PaymentStatus @default(PENDING)
+  startTime             DateTime?
+  endTime               DateTime?
+  description           String?
+  benefitsOrDeliverables String?
+  
+  academyId             String?
+  academy               Academy? @relation(fields: [academyId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("sponsors")
+}
+
+model Product {
+  id                String   @id @default(uuid())
+  name              String
+  category          String?
+  sku               String?  @unique
+  regularPrice      Float?
+  salePrice         Float?
+  description       String?
+  availableSize     String?  // xs, s, m, l, xl, xxl
+  availableColors   String?  // string array or comma separated
+  stockQuantity     Int      @default(0)
+  minStockLevel     Int      @default(0)
+  maxOrderQuantity  Int?
+  productImage      String?
+  status            String?  // Available / Unavailable
+  isFeatured        Boolean  @default(false)
+  
+  academyId         String?
+  academy           Academy? @relation(fields: [academyId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("products")
+}

@@ -1,0 +1,103 @@
+model Club {
+  id               String   @id @default(uuid())
+  userId           String  @unique
+  user             User    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name             String
+  visionAndMission String?
+  venue            String?
+  description      String?
+  achievements     ClubAchievement[]
+  academies        Academy[]
+  teams            Team[]
+  players          Player[]
+  agents           Agent[]
+  leagueId         String?
+  league           League?           @relation(fields: [leagueId], references: [id], onDelete: SetNull)
+  posts            Post[]
+
+  sourceTransfers Transfer[] @relation("SourceClubTransfers")
+  destTransfers   Transfer[] @relation("DestClubTransfers")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("clubs")
+}
+
+model ClubAchievement {
+  id           String @id @default(uuid())
+  clubId       String
+  club         Club   @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  year         Int?
+  championship String?
+
+  @@map("club_achievements")
+}
+
+model Academy {
+  id                 String           @id @default(uuid())
+  clubId             String?
+  club               Club?            @relation(fields: [clubId], references: [id], onDelete: SetNull)
+  name               String
+  logo               String?
+  coverPhoto         String?
+  dateEstablishment  DateTime?
+  country            String?
+  countryFlag        String?
+  city               String?
+  ageGroup           String?
+  phone              String?
+  email              String?
+  description        String?
+  visionAndMission   String?
+  trainingPhilosophy String?
+  status             String?          @default("PENDING")
+  
+  managers           AcademyManager[]
+  teams              Team[]
+  players            Player[]
+  sponsors           Sponsor[]
+  products           Product[]
+  matches            Match[]
+  extraEvents        ExtraEvents[]
+  articles           Article[]
+  posts              Post[]
+  
+  sourceTransfers    Transfer[] @relation("SourceAcademyTransfers")
+  destTransfers      Transfer[] @relation("DestAcademyTransfers")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("academies")
+}
+
+model AcademyManager {
+  id        String  @id @default(uuid())
+  academyId String
+  academy   Academy @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  userId    String  @unique
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ageGroup  String?
+  status    String?
+
+  @@map("academy_managers")
+}
+
+model Team {
+  id        String   @id @default(uuid())
+  name      String
+  clubId    String?
+  club      Club?    @relation(fields: [clubId], references: [id], onDelete: SetNull)
+  academyId String?
+  academy   Academy? @relation(fields: [academyId], references: [id], onDelete: SetNull)
+  
+  players          Player[]
+  coaches          CoachTeam[]
+  trainingSessions TrainingSession[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("teams")
+}

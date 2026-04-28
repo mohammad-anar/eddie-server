@@ -1,0 +1,392 @@
+model Player {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dob             DateTime
+  age             Int
+  styleImage      String?
+  playType        String?
+  playerType      String? // Normal / Goalkeeper
+  characteristics String?
+  
+  birthCountry     BirthCountry?
+  dualNationality  DualNationality?
+  contact          Contact?
+  physicalStats    PhysicalStats?
+  languages        Language[]
+  maps             Map[]
+  marketValues     MarketValue[]
+  careerHighlights CareerHighlight[]
+  coaches          CoachPlayer[]
+  seasonStats      SeasonStats[]
+  skillAttributes  SkillAttribute[]
+  successStories   SuccessStory[]
+  cv               PlayerCV?
+  transfers        Transfer[]
+  parents          ParentPlayer[]
+  teams            Team[]
+  academy          Academy?          @relation(fields: [academyId], references: [id])
+  academyId        String?
+  club             Club?             @relation(fields: [clubId], references: [id], onDelete: SetNull)
+  clubId           String?
+  agent            Agent?            @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  agentId          String?
+  
+  gameReports      GameReport[]
+  sessionPlayers   SessionPlayer[]
+  coachComments    CoachComment[]
+  positionalCoeffs PositionalCoEfficients?
+  attributeAnalysis PlayerAttributeAnalysis?
+  posts            Post[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("players")
+}
+
+model BirthCountry {
+  id        String   @id @default(uuid())
+  playerId  String   @unique
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  name      String
+  flag      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("birth_countries")
+}
+
+model DualNationality {
+  id        String   @id @default(uuid())
+  playerId  String   @unique
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  name      String
+  flag      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("dual_nationalities")
+}
+
+model Contact {
+  id         String   @id @default(uuid())
+  playerId   String   @unique
+  player     Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  email      String?
+  phone      String?
+  location   String?
+  websiteUrl String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("contacts")
+}
+
+model PhysicalStats {
+  id           String   @id @default(uuid())
+  playerId     String   @unique
+  player       Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  height       Float?
+  weight       Float?
+  leftFootShot Float?
+  rightShot    Float?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("physical_stats")
+}
+
+model Language {
+  id        String          @id @default(uuid())
+  playerId  String
+  player    Player          @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  name      String
+  fluency   LanguageFluency
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@map("languages")
+}
+
+model Map {
+  id        String   @id @default(uuid())
+  playerId  String
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  image     String
+  type      MapType
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("maps")
+}
+
+model MarketValue {
+  id        String   @id @default(uuid())
+  playerId  String
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  price     Float
+  isCurrent Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("market_values")
+}
+
+model CareerHighlight {
+  id        String   @id @default(uuid())
+  playerId  String
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  year      Int
+  title     String
+  team      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("career_highlights")
+}
+
+model SeasonStats {
+  id              String   @id @default(uuid())
+  playerId        String
+  player          Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  matches         Int      @default(0)
+  goals           Int      @default(0)
+  assists         Int      @default(0)
+  isCurrentSeason Boolean  @default(true)
+  avgRating       Float    @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("season_stats")
+}
+
+model SkillAttribute {
+  id        String   @id @default(uuid())
+  playerId  String
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  technical Technical?
+  tactical  Tactical?
+  physical  Physical?
+
+  @@map("skill_attributes")
+}
+
+model Technical {
+  id               String         @id @default(uuid())
+  skillAttributeId String         @unique
+  skillAttribute   SkillAttribute @relation(fields: [skillAttributeId], references: [id], onDelete: Cascade)
+  ballControll     Int?
+  dribbling        Int?
+  shortPassing     Int?
+  longPassing      Int?
+  crossing         Int?
+  shooting         Int?
+  finishing        Int?
+  longShots        Int?
+
+  @@map("technical_skills")
+}
+
+model Tactical {
+  id               String         @id @default(uuid())
+  skillAttributeId String         @unique
+  skillAttribute   SkillAttribute @relation(fields: [skillAttributeId], references: [id], onDelete: Cascade)
+  positioning      Int?
+  vision           Int?
+  anticipation     Int?
+  composure        Int?
+  teamWork         Int?
+  workRate         Int?
+  decisions        Int?
+  concentration    Int?
+
+  @@map("tactical_skills")
+}
+
+model Physical {
+  id               String         @id @default(uuid())
+  skillAttributeId String         @unique
+  skillAttribute   SkillAttribute @relation(fields: [skillAttributeId], references: [id], onDelete: Cascade)
+  acceleration     Int?
+  springSpeed      Int?
+  stamina          Int?
+  strength         Int?
+  balance          Int?
+  agility          Int?
+  reactions        Int?
+  jumping          Int?
+
+  @@map("physical_attributes")
+}
+
+model PlayerCV {
+  id                    String   @id @default(uuid())
+  playerId              String   @unique
+  player                Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  fullName              String?
+  nationality           String?
+  flagImage             String?
+  email                 String?
+  dob                   DateTime?
+  contact               String?
+  languages             String?
+  footballAgentContract String?
+  transferFee           String?
+  salary                String?
+  height                Float?
+  weight                Float?
+  dominantFoot          String?
+  position              String?
+  leftFootRate          Int?
+  rightFootRate         Int?
+  ballControl           Int?
+  dribbling             Int?
+  shortPassing          Int?
+  longPassing           Int?
+  crossing              Int?
+  shooting              Int?
+  finishing             Int?
+  longShots             Int?
+  positioning           Int?
+  vision                Int?
+  anticipation          Int?
+  composure             Int?
+  teamWork              Int?
+  workRate              Int?
+  decisions             Int?
+  concentration         Int?
+  acceleration          Int?
+  sprintSpeed           Int?
+  stamina               Int?
+  strength              Int?
+  balance               Int?
+  agility               Int?
+  reactions             Int?
+  jumping               Int?
+  aggression            Int?
+  interceptions         Int?
+  attPosition           Int?
+  leadership            Int?
+  bravery               Int?
+  determination         Int?
+  flair                 Int?
+  influence             Int?
+  totalGamePlayed       Int?
+  totalGoals            Int?
+  totalAssists          Int?
+  achievements          String?
+  coachValidation       String?
+  academyReference      String?
+
+  @@map("player_cvs")
+}
+
+
+model SuccessStory {
+  id          String @id @default(uuid())
+  playerId    String
+  player      Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  category    String?
+  image       String?
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("success_stories")
+}
+
+model PlayerAttributeAnalysis {
+  id                String            @id @default(uuid())
+  playerId          String            @unique
+  player            Player            @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  technicalAbility  TechnicalAbility?
+  reactionSkills    ReactionSkills?
+  physicalAttribute PhysicalAttributeModel?
+  mentalStrength    MentalStrength?
+  attackingSkill    AttackingSkill?
+  defensiveSkill    DefensiveSkill?
+
+  @@map("player_attribute_analyses")
+}
+
+model TechnicalAbility {
+  id         String                  @id @default(uuid())
+  analysisId String                  @unique
+  analysis   PlayerAttributeAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  value      Int?
+
+  @@map("technical_abilities")
+}
+
+model ReactionSkills {
+  id         String                  @id @default(uuid())
+  analysisId String                  @unique
+  analysis   PlayerAttributeAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  value      Int?
+
+  @@map("reaction_skills")
+}
+
+model PhysicalAttributeModel {
+  id         String                  @id @default(uuid())
+  analysisId String                  @unique
+  analysis   PlayerAttributeAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  value      Int?
+
+  @@map("physical_attribute_models")
+}
+
+model MentalStrength {
+  id         String                  @id @default(uuid())
+  analysisId String                  @unique
+  analysis   PlayerAttributeAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  value      Int?
+
+  @@map("mental_strengths")
+}
+
+model AttackingSkill {
+  id         String                  @id @default(uuid())
+  analysisId String                  @unique
+  analysis   PlayerAttributeAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  value      Int?
+
+  @@map("attacking_skills")
+}
+
+model DefensiveSkill {
+  id         String                  @id @default(uuid())
+  analysisId String                  @unique
+  analysis   PlayerAttributeAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  value      Int?
+
+  @@map("defensive_skills")
+}
+
+model PositionalCoEfficients {
+  id       String                   @id @default(uuid())
+  playerId String                   @unique
+  player   Player                   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  rows     PositionalCoEfficientRow[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("positional_coefficients")
+}
+
+model PositionalCoEfficientRow {
+  id            String                 @id @default(uuid())
+  coefficientId String
+  coefficient   PositionalCoEfficients @relation(fields: [coefficientId], references: [id], onDelete: Cascade)
+  title         String?
+  score         Int?
+  grade         String?
+
+  @@map("positional_coefficient_rows")
+}

@@ -1,0 +1,67 @@
+model Post {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String?
+  type      PostType @default(GENERAL)
+  
+  playerId  String?
+  player    Player?  @relation(fields: [playerId], references: [id], onDelete: SetNull)
+  
+  academyId String?
+  academy   Academy? @relation(fields: [academyId], references: [id], onDelete: SetNull)
+  
+  clubId    String?
+  club      Club?    @relation(fields: [clubId], references: [id], onDelete: SetNull)
+  
+  coachId   String?
+  coach     Coach?   @relation(fields: [coachId], references: [id], onDelete: SetNull)
+  
+  images    ImagePost[]
+  videos    VideoPost[]
+  article   Article?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("posts")
+}
+
+model ImagePost {
+  id     String @id @default(uuid())
+  postId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  url    String
+
+  @@map("image_posts")
+}
+
+model VideoPost {
+  id     String @id @default(uuid())
+  postId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  url    String
+
+  @@map("video_posts")
+}
+
+model Article {
+  id      String  @id @default(uuid())
+  postId  String  @unique
+  post    Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  title   String
+  body    String?
+  summary String?
+  
+  academyId String?
+  academy   Academy? @relation(fields: [academyId], references: [id], onDelete: SetNull)
+
+  @@map("articles")
+}
+
+enum PostType {
+  GENERAL
+  IMAGE
+  VIDEO
+  ARTICLE
+}

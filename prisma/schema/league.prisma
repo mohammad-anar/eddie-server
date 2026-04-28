@@ -1,0 +1,16 @@
+model League {
+  id          String   @id @default(uuid())
+  name        String
+  country     String?
+  countryFlag String?
+  logo        String?
+  description String?
+  
+  clubs       Club[]
+  matches     Match[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("leagues")
+}

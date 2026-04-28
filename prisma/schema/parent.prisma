@@ -1,0 +1,37 @@
+model Parent {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  addressId String?  @unique
+  address   Address? @relation(fields: [addressId], references: [id], onDelete: SetNull)
+  
+  players   ParentPlayer[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("parents")
+}
+
+model ParentPlayer {
+  id           String @id @default(uuid())
+  parentId     String
+  parent       Parent @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  playerId     String
+  player       Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  relationship String?
+
+  @@map("parent_players")
+}
+
+model Address {
+  id        String  @id @default(uuid())
+  parent    Parent?
+  street    String?
+  city      String?
+  state     String?
+  zipCode   String?
+  country   String?
+
+  @@map("addresses")
+}
