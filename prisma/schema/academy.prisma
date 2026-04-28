@@ -3,9 +3,17 @@ model Club {
   userId           String  @unique
   user             User    @relation(fields: [userId], references: [id], onDelete: SetNull)
   name             String
-  visionAndMission String?
-  venue            String?
+  country          String?
+  countryFlag      String?
+  city             String?
+  coverPhoto       String?
+  logo             String?
+  dateOfEstablishment DateTime?
+  secondaryEmail   String?
+  secondaryPhone   String?
+  website          String?
   description      String?
+  visionAndMission String?
   achievements     ClubAchievement[]
   academies        Academy[]
   teams            Team[]
@@ -31,6 +39,7 @@ model ClubAchievement {
   club         Club   @relation(fields: [clubId], references: [id], onDelete: Cascade)
   year         Int?
   championship String?
+  venue        String?
 
   @@index([clubId])
   @@map("club_achievements")
