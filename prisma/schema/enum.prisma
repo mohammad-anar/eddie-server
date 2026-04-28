@@ -104,3 +104,25 @@ enum AcademyTransferType {
   EXTERNAL
   NONE
 }
+enum MatchType {
+  FRIENDLY
+  LEAGUE
+  CUP
+  TOURNAMENT
+  TRIAL
+}
+
+enum MatchStatus {
+  SCHEDULED
+  LIVE
+  COMPLETED
+  POSTPONED
+  CANCELLED
+}
+
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  DOCUMENT
+}

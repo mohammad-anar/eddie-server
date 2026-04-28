@@ -17,6 +17,10 @@ model Player {
   maps             Map[]
   marketValues     MarketValue[]
   careerHighlights CareerHighlight[]
+  strength         Strength?
+  performanceMatrix PerformanceMatrix?
+  detailedAnalysis DetailedAnalysisMetrix?
+
   coaches          CoachPlayer[]
   seasonStats      SeasonStats[]
   skillAttributes  SkillAttribute[]
@@ -93,7 +97,7 @@ model PhysicalStats {
   height       Float?
   weight       Float?
   leftFootShot Float?
-  rightShot    Float?
+  rightFootShot    Float?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -118,12 +122,43 @@ model Map {
   playerId  String
   player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
   image     String
-  type      MapType
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([playerId])
   @@map("maps")
+}
+
+model Strength {
+  id        String   @id @default(uuid())
+  playerId  String   @unique
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  pace Int?
+  shooting Int?
+  passing Int?
+  dribbling Int?
+  defending Int?
+  physical Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("strengths")
+}
+
+model PerformanceMatrix {
+  id        String   @id @default(uuid())
+  playerId  String   @unique
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  pace Int?
+  passAccuracy Int?
+  shootAccuracy Int?
+  dibbleSuccess Int?
+  tackleSuccess Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("performance_matrix")
 }
 
 model MarketValue {
@@ -132,6 +167,8 @@ model MarketValue {
   player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
   price     Float
   isCurrent Boolean  @default(true)
+  fromDate  DateTime?
+  toDate    DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -145,11 +182,13 @@ model CareerHighlight {
   player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
   year      Int
   title     String
-  team      String
+  teamId    String
+  team      Team @relation(fields: [teamId], references: [id], onDelete: SetNull)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([playerId])
+  @@index([teamId])
   @@map("career_highlights")
 }
 
@@ -173,12 +212,14 @@ model SkillAttribute {
   id        String   @id @default(uuid())
   playerId  String
   player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   technical Technical?
   tactical  Tactical?
   physical  Physical?
+  mental    Mental?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([playerId])
   @@map("skill_attributes")
@@ -204,6 +245,7 @@ model Tactical {
   id               String         @id @default(uuid())
   skillAttributeId String         @unique
   skillAttribute   SkillAttribute @relation(fields: [skillAttributeId], references: [id], onDelete: Cascade)
+
   positioning      Int?
   vision           Int?
   anticipation     Int?
@@ -220,6 +262,7 @@ model Physical {
   id               String         @id @default(uuid())
   skillAttributeId String         @unique
   skillAttribute   SkillAttribute @relation(fields: [skillAttributeId], references: [id], onDelete: Cascade)
+
   acceleration     Int?
   springSpeed      Int?
   stamina          Int?
@@ -231,6 +274,24 @@ model Physical {
 
   @@map("physical_attributes")
 }
+
+model Mental {
+  id               String         @id @default(uuid())
+  skillAttributeId String         @unique
+  skillAttribute   SkillAttribute @relation(fields: [skillAttributeId], references: [id], onDelete: Cascade)
+  aggression       Int?
+  interceptions    Int?
+  attPosition      Int?
+  leadership       Int?
+  bravery          Int?
+  determination    Int?
+  flair            Int?
+  influence        Int?
+
+  @@map("mental_skills")
+}
+
+
 
 model PlayerCV {
   id                    String   @id @default(uuid())
@@ -294,11 +355,41 @@ model PlayerCV {
   @@map("player_cvs")
 }
 
+model DetailedAnalysisMetrix {
+  id      String @id @default(uuid())
+  playerId String @unique
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  rows    DetailedAnalysisMetrixRow[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("detailed_analysis_metrixes")
+}
+
+model DetailedAnalysisMetrixRow {
+  id      String @id @default(uuid())
+  metrixId String
+  metrix DetailedAnalysisMetrix @relation(fields: [metrixId], references: [id], onDelete: Cascade)
+
+  category String?
+  score Int?
+  trend String?
+  grade String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([metrixId])
+  @@map("detailed_analysis_metrix_rows")
+}
+
 
 model SuccessStory {
   id          String @id @default(uuid())
   playerId    String
   player      Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
   category    String?
   image       String?
   description String?
@@ -314,6 +405,7 @@ model PlayerAttributeAnalysis {
   id                String            @id @default(uuid())
   playerId          String            @unique
   player            Player            @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
   technicalAbility  TechnicalAbility?
   reactionSkills    ReactionSkills?
   physicalAttribute PhysicalAttributeModel?
@@ -328,7 +420,10 @@ model TechnicalAbility {
   id         String                  @id @default(uuid())
   analysisId String                  @unique
   analysis   PlayerAttributeAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
-  value      Int?
+  ballControl Int?
+  passing Int?
+  dribbling Int?
+  firstTouch Int?
 
   @@map("technical_abilities")
 }
@@ -337,7 +432,10 @@ model ReactionSkills {
   id         String                  @id @default(uuid())
   analysisId String                  @unique
   analysis   PlayerAttributeAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
-  value      Int?
+  positioning      Int?
+  vision      Int?
+  decisionMaking      Int?
+  teamWork      Int?
 
   @@map("reaction_skills")
 }
@@ -346,7 +444,11 @@ model PhysicalAttributeModel {
   id         String                  @id @default(uuid())
   analysisId String                  @unique
   analysis   PlayerAttributeAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
-  value      Int?
+
+  speed      Int?
+  stamina      Int?
+  strength      Int?
+  agility      Int?  
 
   @@map("physical_attribute_models")
 }
@@ -355,7 +457,11 @@ model MentalStrength {
   id         String                  @id @default(uuid())
   analysisId String                  @unique
   analysis   PlayerAttributeAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
-  value      Int?
+  
+  composure      Int?
+  determination      Int?
+  leadership      Int?
+  bravery      Int?
 
   @@map("mental_strengths")
 }
@@ -364,7 +470,10 @@ model AttackingSkill {
   id         String                  @id @default(uuid())
   analysisId String                  @unique
   analysis   PlayerAttributeAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
-  value      Int?
+  shooting      Int?
+  finishing      Int?
+  longShots      Int?
+  attPosition      Int?
 
   @@map("attacking_skills")
 }
@@ -373,7 +482,10 @@ model DefensiveSkill {
   id         String                  @id @default(uuid())
   analysisId String                  @unique
   analysis   PlayerAttributeAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
-  value      Int?
+  tackling      Int?
+  interceptions      Int?
+  marking      Int?
+  heading      Int?
 
   @@map("defensive_skills")
 }
@@ -382,6 +494,7 @@ model PositionalCoEfficients {
   id       String                   @id @default(uuid())
   playerId String                   @unique
   player   Player                   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
   rows     PositionalCoEfficientRow[]
 
   createdAt DateTime @default(now())

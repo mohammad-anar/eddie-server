@@ -1,26 +1,40 @@
 model Match {
-  id              String           @id @default(uuid())
-  title           String?
-  academyId       String?
-  academy         Academy?         @relation(fields: [academyId], references: [id], onDelete: SetNull)
-  academyTeam     String?
-  opponentTeam    String?
-  matchType       String?
-  competitionName String?
-  venueName       String?
-  venueAddress    String?
-  awayOrHome      String?
-  date            DateTime?
-  kickOffTime     String?
-  referees        String?
-  transportCost   Float?
-  mealCost        Float?
-  otherCost       Float?
-  estimatedTotal  Float?
-  additionalNotes String?
-  leagueId        String?
-  league          League?          @relation(fields: [leagueId], references: [id], onDelete: SetNull)
+  id String @id @default(uuid())
+
+  title String?
+
+  // Ownership
+  academyId String?
+  academy   Academy? @relation(fields: [academyId], references: [id], onDelete: SetNull)
+
+  clubId String?
+  club   Club? @relation(fields: [clubId], references: [id], onDelete: SetNull)
+
+  leagueId String?
+  league   League? @relation(fields: [leagueId], references: [id], onDelete: SetNull)
+
+  // Teams (STRICT: 2 teams only)
+  homeTeamId String
+  homeTeam   Team   @relation("HomeTeam", fields: [homeTeamId], references: [id])
   
+  awayTeamId String
+  awayTeam   Team   @relation("AwayTeam", fields: [awayTeamId], references: [id])
+
+  matchType MatchType
+  status    MatchStatus @default(SCHEDULED)
+
+  kickoffAt DateTime
+  venueName String?
+  venueAddress String?
+
+  referees String? 
+
+  matchCostId String?  @unique
+  matchCost   MatchCost? @relation(fields: [matchCostId], references: [id], onDelete: SetNull)
+
+  additionalNotes String?
+
+  // Relations
   gameReport      GameReport?
   matchStatistics MatchStatistics[]
   matchMedia      MatchMedia[]
@@ -31,26 +45,54 @@ model Match {
 
   @@index([academyId])
   @@index([leagueId])
+  @@index([homeTeamId])
+  @@index([awayTeamId])
+
   @@map("matches")
+}
+
+model MatchCost {
+  id              String  @id @default(uuid())
+  matchId         String  @unique
+  match           Match   @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  transportation  Float?  @default(0)
+  mealCost        Float?  @default(0)
+  otherCost       Float?  @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([matchId])
+  @@map("match_costs")
 }
 
 model GameReport {
   id              String        @id @default(uuid())
-  matchId         String        @unique
-  match           Match         @relation(fields: [matchId], references: [id], onDelete: Cascade)
   playerId        String
   player          Player        @relation(fields: [playerId], references: [id], onDelete: Cascade)
-  opponent        String?
-  rating          Float?
-  paymentStatus   PaymentStatus @default(PENDING)
-  matchDate       DateTime?
-  matchPlayed     String?
+  
+  matchId         String        @unique
+  match           Match         @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  myTeamId        String
+  myTeam          Team          @relation(fields: [myTeamId], references: [id], onDelete: Cascade)
+
+  position        String?  
+  foot        String?  
+  characteristics String[]
+  weight          Int?     
+  height          Int?    
+  matchPlayed     Int?
   minutesPlayed   Int?
   manOfTheMatch   Boolean?      @default(false)
   scoutName       String?
-  gameType        String?
-  gameDate        DateTime?
-  location        String?
+  gameType        String?  
+  gameDate        DateTime? @map("game_date")
+  location        String?   
+  matchResult     String?   @map("match_result")
+  weather         String?   
+  rating          Float?
+  additionalNumber Int? @default(0)
+  paymentStatus   PaymentStatus @default(PENDING)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -74,7 +116,8 @@ model MatchMedia {
   matchId String
   match   Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
   url     String
-  type    String // Video, Image
+  type    MediaType @default(IMAGE)
+  caption String?
 
   @@index([matchId])
   @@map("match_media")
@@ -82,22 +125,24 @@ model MatchMedia {
 
 model ExtraEvents {
   id              String    @id @default(uuid())
-  matchId         String?
-  match           Match?    @relation(fields: [matchId], references: [id], onDelete: SetNull)
   academyId       String?
   academy         Academy?  @relation(fields: [academyId], references: [id], onDelete: SetNull)
+
   name            String?
   type            String?
   targetAttendees String?
   date            DateTime?
   startTime       String?
   endTime         String?
-  regDeadline     DateTime?
-  venue           String?
+  registrationDeadline     DateTime?
+  venueName          String?
+  fullAddress      String?
   maxCapacity     Int?
+  eventFee      Int?
+
   description     String?
   requirements    String?
-  contactName     String?
+  contactPersonName     String?
   contactEmail    String?
   contactPhone    String?
   image           String?

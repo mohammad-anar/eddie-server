@@ -105,6 +105,9 @@ model Team {
   players          Player[]
   coaches          CoachTeam[]
   trainingSessions TrainingSession[]
+  homeMatches      Match[] @relation("HomeTeam")
+  awayMatches      Match[] @relation("AwayTeam")
+  careerHighlights CareerHighlight[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
