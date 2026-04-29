@@ -39,6 +39,7 @@ model Player {
   gameReports      GameReport[]
   sessionPlayers   SessionPlayer[]
   coachComments    CoachComment[]
+  detailedAnalysis DetailedAnalysisMetrix?
   positionalCoeffs PositionalCoEfficients?
   attributeAnalysis PlayerAttributeAnalysis?
   posts            Post[]
@@ -310,6 +311,8 @@ model PlayerCV {
   contactPhone          String?
   address               String?
   socialPortfolioLink   String?
+  location              String?
+  websiteUrl            String?
   languages             String?
   
   // Transfer Info

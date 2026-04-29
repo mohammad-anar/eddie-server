@@ -8,6 +8,7 @@ enum UserRole {
   PARENT
   PLAYER
   AGENT
+  TEAM_MANAGER
 }
 
 enum AdminRole {
@@ -63,6 +64,7 @@ enum SponsorType {
 enum PaymentStatus {
   PENDING
   PAID
+  FAILED
 }
 
 enum ProductStatus {
@@ -70,6 +72,7 @@ enum ProductStatus {
   OUT_OF_STOCK
   PRE_ORDER
 }
+
 enum AgentVerificationStatus {
   PENDING
   VERIFIED
@@ -90,6 +93,7 @@ enum InitiatorType {
   ACADEMY
   ADMIN
 }
+
 enum TransferCategory {
   ACADEMY_TO_ACADEMY
   CLUB_TO_CLUB
@@ -104,6 +108,7 @@ enum AcademyTransferType {
   EXTERNAL
   NONE
 }
+
 enum MatchType {
   FRIENDLY
   LEAGUE
@@ -119,7 +124,6 @@ enum MatchStatus {
   POSTPONED
   CANCELLED
 }
-
 
 enum MediaType {
   IMAGE
@@ -137,4 +141,33 @@ enum GameReportStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+enum OwnerType {
+  PLAYER
+  CLUB
+  ACADEMY
+  AGENT
+  TEAM
+  COACH
+  POST
+  MATCH
+  TRANSFER
+  PRODUCT
+  SPONSOR
+}
+
+enum EntityType {
+  CLUB
+  ACADEMY
+  FREE_AGENT
+}
+
+enum TransactionType {
+  TRANSFER_FEE
+  AGENT_COMMISSION
+  MATCH_COST
+  SPONSORSHIP
+  MEMBERSHIP_FEE
+  PRODUCT_SALE
 }

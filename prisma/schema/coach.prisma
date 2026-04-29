@@ -2,20 +2,132 @@ model Coach {
   id              String   @id @default(uuid())
   userId          String   @unique
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Personal Info
+  fullName        String?
+  dob             DateTime?
+  age             Int?
+  gender          String?
+  nationality     String?
+  nationalityFlag String?
+  
+  // Contact
+  phone           String?
+  email           String?
+  location        String?
+  websiteUrl      String?
+  
+  // Professional
   license         String?
   experienceYears Int?
   specialization  String?
+  keyAccomplishments String[]
   
+  // Career Stats
+  totalMatches    Int      @default(0)
+  wins            Int      @default(0)
+  draws           Int      @default(0)
+  losses          Int      @default(0)
+  
+  // Market Info
+  currentValue    Float?
+  salary          Float?
+  
+  // Management Style (Ratings 0-100)
+  tactics         Int      @default(0)
+  leadership      Int      @default(0)
+  discipline      Int      @default(0)
+  
+  // Relations
   players         CoachPlayer[]
   teams           CoachTeam[]
-  comments         CoachComment[]
+  comments        CoachComment[]
   trainingSessions TrainingSession[]
-  posts            Post[]
+  
+  managedClubs    CoachManagedClub[]
+  trophies        CoachTrophy[]
+  courses         CoachCourse[]
+  formations      CoachFormation[]
+  testimonials    CoachTestimonial[]
+  docs            CoachDoc[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("coaches")
+}
+
+model CoachManagedClub {
+  id        String @id @default(uuid())
+  coachId   String
+  coach     Coach  @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  clubName  String
+  clubLogo  String?
+  startDate DateTime?
+  endDate   DateTime?
+  
+  @@index([coachId])
+  @@map("coach_managed_clubs")
+}
+
+model CoachTrophy {
+  id        String @id @default(uuid())
+  coachId   String
+  coach     Coach  @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  name      String
+  year      Int?
+  image     String?
+  
+  @@index([coachId])
+  @@map("coach_trophies")
+}
+
+model CoachCourse {
+  id        String @id @default(uuid())
+  coachId   String
+  coach     Coach  @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  name      String
+  institution String?
+  image     String?
+  
+  @@index([coachId])
+  @@map("coach_courses")
+}
+
+model CoachFormation {
+  id        String @id @default(uuid())
+  coachId   String
+  coach     Coach  @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  formation String // e.g. "4-3-3"
+  image     String?
+  
+  @@index([coachId])
+  @@map("coach_formations")
+}
+
+model CoachTestimonial {
+  id        String @id @default(uuid())
+  coachId   String
+  coach     Coach  @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  authorName String
+  authorTitle String?
+  content   String
+  rating    Int?
+  avatar    String?
+  
+  @@index([coachId])
+  @@map("coach_testimonials")
+}
+
+model CoachDoc {
+  id        String @id @default(uuid())
+  coachId   String
+  coach     Coach  @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  title     String
+  fileUrl   String
+  
+  @@index([coachId])
+  @@map("coach_docs")
 }
 
 model CoachPlayer {

@@ -15,10 +15,30 @@ model Agent {
   
   players         Player[]
   transfers       Transfer[]
+  earnings        AgentEarnings[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([clubId])
   @@map("agents")
+}
+model AgentEarnings {
+  id               String   @id @default(uuid())
+  agentId          String
+  agent            Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  
+  amount           Float
+  currency         String   @default("EUR")
+  
+  transferId       String?  @unique
+  
+  description      String?
+  date             DateTime @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([agentId])
+  @@map("agent_earnings")
 }
