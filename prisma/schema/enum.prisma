@@ -171,3 +171,10 @@ enum TransactionType {
   MEMBERSHIP_FEE
   PRODUCT_SALE
 }
+
+enum PostType {
+  GENERAL
+  IMAGE
+  VIDEO
+  ARTICLE
+}

@@ -20,6 +20,8 @@ model Post {
   images    ImagePost[]
   videos    VideoPost[]
   article   Article?
+  likes     Like[]
+  comments  Comment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -41,6 +43,7 @@ model ImagePost {
   @@index([postId])
   @@map("image_posts")
 }
+
 
 model VideoPost {
   id     String @id @default(uuid())
@@ -67,9 +70,36 @@ model Article {
   @@map("articles")
 }
 
-enum PostType {
-  GENERAL
-  IMAGE
-  VIDEO
-  ARTICLE
+model Like {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+  @@index([userId])
+  @@index([postId])
+  @@map("likes")
 }
+
+model Comment {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  content   String
+  parentId  String?
+  parent    Comment? @relation("CommentToComment", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("CommentToComment")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([postId])
+  @@index([parentId])
+  @@map("comments")
+}
+

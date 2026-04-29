@@ -18,8 +18,28 @@ model User {
   parent         Parent?
   agent          Agent?
   posts          Post[]
+  addresses      Address[]
+  likes          Like[]
+  comments       Comment[]
 
   @@map("users")
+}
+
+model Address {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  streetAddress String
+  city          String
+  zipCode       String
+  country       String
+  state         String
+  flag          String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+  @@map("addresses")
 }
 
 model SuperAdmin {
