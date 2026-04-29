@@ -27,14 +27,3 @@ model ParentPlayer {
   @@map("parent_players")
 }
 
-model Address {
-  id        String  @id @default(uuid())
-  parent    Parent?
-  street    String?
-  city      String?
-  state     String?
-  zipCode   String?
-  country   String?
-
-  @@map("addresses")
-}

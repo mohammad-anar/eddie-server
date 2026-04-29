@@ -35,6 +35,7 @@ model Address {
   country       String
   state         String
   flag          String?
+  parent        Parent?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
