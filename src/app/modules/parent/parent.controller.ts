@@ -7,7 +7,10 @@ import catchAsync from "app/shared/catchAsync.js";
 import sendResponse from "app/shared/sendResponse.js";
 
 const createParent = catchAsync(async (req: Request, res: Response) => {
-  const result = await ParentService.createParent(req.body);
+  if (req.body.data) {
+    req.body.data = JSON.parse(req.body.data);
+  }
+  const result = await ParentService.createParent(req.body.data || req.body);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -46,7 +49,10 @@ const getSingleParent = catchAsync(async (req: Request, res: Response) => {
 
 const updateParent = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await ParentService.updateParent(id as string, req.body);
+  if (req.body.data) {
+    req.body.data = JSON.parse(req.body.data);
+  }
+  const result = await ParentService.updateParent(id as string, req.body.data || req.body);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
