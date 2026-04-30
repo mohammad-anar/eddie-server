@@ -45,12 +45,23 @@ The codebase enforces strict type safety:
 ## 6. File Upload Handling
 
 For endpoints requiring file uploads (e.g., images, documents):
-- **Middleware**: Use `fileUploadHandler()` middleware in the route definition.
-- **Payload**: Clients should send data as `multipart/form-data`.
+- **Middleware**: Use `fileUploadHandler()` in the route definition.
+- **JSON Parsing Middleware**: Since `formData` cannot handle nested JSON objects directly, use a middleware in the route to parse the stringified `data` field:
+  ```typescript
+  router.post("/", 
+    fileUploadHandler(), 
+    (req, res, next) => {
+      if (req.body.data) req.body = JSON.parse(req.body.data);
+      next();
+    },
+    validateRequest(ValidationSchema),
+    Controller.handler
+  );
+  ```
 - **Controller Logic**: 
-  - If the payload includes a JSON-stringified `data` field, parse it: `req.body.data = JSON.parse(req.body.data)`.
-  - Use `getSingleFilePath(req.files, 'image')` or `getMultipleFilesPath(req.files, 'image')` to extract file paths.
-  - Assign extracted paths to the appropriate fields in `req.body.data` or `req.body`.
+  - Use `getSingleFilePath(req.files, 'fieldName')` or `getMultipleFilesPath(req.files, 'fieldName')`.
+  - **Supported Field Names**: `logo`, `countryFlag`, `coverPhoto`, `styleImage`, `galleryImages`, `matchHighlights`, `image`, `media`, `doc`.
+  - The `getSingleFilePath` utility automatically maps these field names to their respective storage folders (`image`, `media`, or `doc`) to return the correct URL path.
 
 ## 7. Searching, Filtering, and Pagination
 
@@ -82,16 +93,9 @@ To create a new module, follow these steps in order:
 7.  **Handle Files**: If the module requires file uploads, integrate `fileUploadHandler()` and update the controller to process `req.files`.
 8.  **Register Route**: Add the new route to `src/app/routes/index.ts`.
 
-Example Route Registration:
-```typescript
-import { NewModuleRouter } from "../modules/newModule/newModule.route.js";
-const moduleRoutes = [
-  { path: "/new-module", route: NewModuleRouter },
-];
-```
-
 ## 10. Admin & User Module Patterns
 
 - **getMe**: All modules providing a "profile" should implement a `getMe` service that accepts a `JwtPayload` (from `jsonwebtoken`) and returns the profile including relevant relations (e.g., `Player`, `Club`, `Coach`, `addresses`).
 - **Admin Access**: Admin-only list views must implement searching (via `searchTerm` on `OR` conditions for string fields) and filtering (via exact matches on `AND` conditions). Boolean fields like `isVerified` should be parsed from strings.
+- **Nested Updates**: For complex models (like `Player`), implement the `update` service using Prisma's `upsert` or `deleteMany`/`create` patterns to handle one-to-one or one-to-many nested relations.
 - **Type Casting**: If JWT configuration types (like `jwt_expire_in`) cause TypeScript errors when used as function arguments, use `as any` to bypass strict string/number conflicts.
