@@ -14,6 +14,7 @@ import { SponsorRoutes } from "../modules/sponsor/sponsor.route.js";
 import { ProductRoutes } from "../modules/product/product.route.js";
 import { PostRoutes } from "../modules/post/post.route.js";
 import { TransferRoutes } from "../modules/transfer/transfer.route.js";
+import { AgentRoutes } from "../modules/agent/agent.route.js";
 
 const router = express.Router();
 
@@ -33,6 +34,7 @@ const moduleRoutes = [
   { path: "/products", route: ProductRoutes },
   { path: "/posts", route: PostRoutes },
   { path: "/transfers", route: TransferRoutes },
+  { path: "/agents", route: AgentRoutes },
 ];
 
 moduleRoutes.forEach((route) => router.use(route.path, route.route));
