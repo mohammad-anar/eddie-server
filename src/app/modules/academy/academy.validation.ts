@@ -3,7 +3,7 @@ import { z } from "zod";
 const createAcademyZodSchema = z.object({
   clubId: z.string().optional(),
   name: z.string({
-    required_error: "Name is required",
+   message:"Name is required",
   }),
   logo: z.string().optional(),
   coverPhoto: z.string().optional(),
