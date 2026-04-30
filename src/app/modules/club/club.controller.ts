@@ -6,8 +6,15 @@ import { clubFilterableFields, paginationFields } from "./club.constant.js";
 import catchAsync from "app/shared/catchAsync.js";
 import sendResponse from "app/shared/sendResponse.js";
 
+import { getSingleFilePath } from "../../shared/getFilePath.js";
+
 const createClub = catchAsync(async (req: Request, res: Response) => {
-  const result = await ClubService.createClub(req.body);
+  if (req.files) {
+    req.body.data = JSON.parse(req.body.data);
+    req.body.data.logo = getSingleFilePath(req.files, "logo");
+    req.body.data.coverPhoto = getSingleFilePath(req.files, "coverPhoto");
+  }
+  const result = await ClubService.createClub(req.body.data || req.body);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -46,7 +53,12 @@ const getSingleClub = catchAsync(async (req: Request, res: Response) => {
 
 const updateClub = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await ClubService.updateClub(id as string, req.body);
+  if (req.files) {
+    req.body.data = JSON.parse(req.body.data);
+    req.body.data.logo = getSingleFilePath(req.files, "logo");
+    req.body.data.coverPhoto = getSingleFilePath(req.files, "coverPhoto");
+  }
+  const result = await ClubService.updateClub(id as string, req.body.data || req.body);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
