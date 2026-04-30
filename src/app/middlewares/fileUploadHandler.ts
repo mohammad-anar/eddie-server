@@ -25,9 +25,18 @@ const fileUploadHandler = () => {
       let uploadDir;
       switch (file.fieldname) {
         case "image":
+        case "logo":
+        case "countryFlag":
+        case "coverPhoto":
+        case "styleImage":
+        case "galleryImages":
+        case "productImage":
+        case "images":
           uploadDir = path.join(baseUploadDir, "image");
           break;
         case "media":
+        case "matchHighlights":
+        case "videos":
           uploadDir = path.join(baseUploadDir, "media");
           break;
         case "doc":
@@ -55,7 +64,11 @@ const fileUploadHandler = () => {
 
   //file filter
   const filterFilter = (req: Request, file: any, cb: FileFilterCallback) => {
-    if (file.fieldname === "image") {
+    const imageFields = ["image", "logo", "countryFlag", "coverPhoto", "styleImage", "galleryImages", "productImage", "images"];
+    const mediaFields = ["media", "matchHighlights", "videos"];
+    const docFields = ["doc"];
+
+    if (imageFields.includes(file.fieldname)) {
       if (
         file.mimetype === "image/jpeg" ||
         file.mimetype === "image/png" ||
@@ -71,7 +84,7 @@ const fileUploadHandler = () => {
           ),
         );
       }
-    } else if (file.fieldname === "media") {
+    } else if (mediaFields.includes(file.fieldname)) {
       if (file.mimetype === "video/mp4" || file.mimetype === "audio/mpeg") {
         cb(null, true);
       } else {
@@ -82,7 +95,7 @@ const fileUploadHandler = () => {
           ),
         );
       }
-    } else if (file.fieldname === "doc") {
+    } else if (docFields.includes(file.fieldname)) {
       if (file.mimetype === "application/pdf") {
         cb(null, true);
       } else {
@@ -97,9 +110,18 @@ const fileUploadHandler = () => {
     storage: storage,
     fileFilter: filterFilter,
   }).fields([
-    { name: "image", maxCount: 3 },
-    { name: "media", maxCount: 3 },
-    { name: "doc", maxCount: 3 },
+    { name: "image", maxCount: 10 },
+    { name: "media", maxCount: 10 },
+    { name: "doc", maxCount: 10 },
+    { name: "logo", maxCount: 10 },
+    { name: "countryFlag", maxCount: 10 },
+    { name: "coverPhoto", maxCount: 10 },
+    { name: "styleImage", maxCount: 10 },
+    { name: "galleryImages", maxCount: 10 },
+    { name: "matchHighlights", maxCount: 10 },
+    { name: "productImage", maxCount: 10 },
+    { name: "images", maxCount: 10 },
+    { name: "videos", maxCount: 10 },
   ]);
   return upload;
 };
