@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 const createAcademyZodSchema = z.object({
-  clubId: z.string().optional(),
   name: z.string({
    message:"Name is required",
   }),
@@ -21,7 +20,6 @@ const createAcademyZodSchema = z.object({
 });
 
 const updateAcademyZodSchema = z.object({
-  clubId: z.string().optional(),
   name: z.string().optional(),
   logo: z.string().optional(),
   coverPhoto: z.string().optional(),
