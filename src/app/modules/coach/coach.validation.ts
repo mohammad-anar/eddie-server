@@ -27,7 +27,6 @@ const createCoachZodSchema = z.object({
 });
 
 const updateCoachZodSchema = z.object({
-  userId: z.string().optional(),
   fullName: z.string().optional(),
   dob: z.string().optional(),
   age: z.number().optional(),
