@@ -128,16 +128,175 @@ const getSinglePlayer = async (id: string): Promise<Player | null> => {
 
 const updatePlayer = async (
   id: string,
-  payload: Partial<Player>
+  payload: any
 ): Promise<Player | null> => {
+  const {
+    birthCountry,
+    dualNationality,
+    contact,
+    physicalStats,
+    strength,
+    performanceMatrix,
+    cv,
+    detailedAnalysis,
+    attributeAnalysis,
+    positionalCoeffs,
+    ...playerData
+  } = payload;
+
+  const updateData: Prisma.PlayerUpdateInput = {
+    ...playerData,
+    dob: playerData.dob ? new Date(playerData.dob) : undefined,
+  };
+
+  if (birthCountry) {
+    updateData.birthCountry = {
+      upsert: {
+        create: birthCountry,
+        update: birthCountry,
+      },
+    };
+  }
+
+  if (dualNationality) {
+    updateData.dualNationality = {
+      upsert: {
+        create: dualNationality,
+        update: dualNationality,
+      },
+    };
+  }
+
+  if (contact) {
+    updateData.contact = {
+      upsert: {
+        create: contact,
+        update: contact,
+      },
+    };
+  }
+
+  if (physicalStats) {
+    updateData.physicalStats = {
+      upsert: {
+        create: physicalStats,
+        update: physicalStats,
+      },
+    };
+  }
+
+  if (strength) {
+    updateData.strength = {
+      upsert: {
+        create: strength,
+        update: strength,
+      },
+    };
+  }
+
+  if (performanceMatrix) {
+    updateData.performanceMatrix = {
+      upsert: {
+        create: performanceMatrix,
+        update: performanceMatrix,
+      },
+    };
+  }
+
+  if (cv) {
+    updateData.cv = {
+      upsert: {
+        create: {
+          ...cv,
+          dob: cv.dob ? new Date(cv.dob) : undefined,
+        },
+        update: {
+          ...cv,
+          dob: cv.dob ? new Date(cv.dob) : undefined,
+        },
+      },
+    };
+  }
+
+  if (detailedAnalysis) {
+    const { rows, ...analysisData } = detailedAnalysis;
+    updateData.detailedAnalysis = {
+      upsert: {
+        create: {
+          ...analysisData,
+          rows: rows ? { create: rows } : undefined,
+        },
+        update: {
+          ...analysisData,
+          rows: rows
+            ? {
+                deleteMany: {},
+                create: rows,
+              }
+            : undefined,
+        },
+      },
+    };
+  }
+
+  if (attributeAnalysis) {
+    const {
+      technicalAbility,
+      reactionSkills,
+      physicalAttribute,
+      mentalStrength,
+      attackingSkill,
+      defensiveSkill,
+    } = attributeAnalysis;
+
+    updateData.attributeAnalysis = {
+      upsert: {
+        create: {
+          technicalAbility: technicalAbility ? { create: technicalAbility } : undefined,
+          reactionSkills: reactionSkills ? { create: reactionSkills } : undefined,
+          physicalAttribute: physicalAttribute ? { create: physicalAttribute } : undefined,
+          mentalStrength: mentalStrength ? { create: mentalStrength } : undefined,
+          attackingSkill: attackingSkill ? { create: attackingSkill } : undefined,
+          defensiveSkill: defensiveSkill ? { create: defensiveSkill } : undefined,
+        },
+        update: {
+          technicalAbility: technicalAbility ? { upsert: { create: technicalAbility, update: technicalAbility } } : undefined,
+          reactionSkills: reactionSkills ? { upsert: { create: reactionSkills, update: reactionSkills } } : undefined,
+          physicalAttribute: physicalAttribute ? { upsert: { create: physicalAttribute, update: physicalAttribute } } : undefined,
+          mentalStrength: mentalStrength ? { upsert: { create: mentalStrength, update: mentalStrength } } : undefined,
+          attackingSkill: attackingSkill ? { upsert: { create: attackingSkill, update: attackingSkill } } : undefined,
+          defensiveSkill: defensiveSkill ? { upsert: { create: defensiveSkill, update: defensiveSkill } } : undefined,
+        },
+      },
+    };
+  }
+
+  if (positionalCoeffs) {
+    const { rows, ...coeffsData } = positionalCoeffs;
+    updateData.positionalCoeffs = {
+      upsert: {
+        create: {
+          ...coeffsData,
+          rows: rows ? { create: rows } : undefined,
+        },
+        update: {
+          ...coeffsData,
+          rows: rows
+            ? {
+                deleteMany: {},
+                create: rows,
+              }
+            : undefined,
+        },
+      },
+    };
+  }
+
   const result = await prisma.player.update({
     where: {
       id,
     },
-    data: {
-      ...payload,
-      dob: payload.dob ? new Date(payload.dob) : undefined,
-    },
+    data: updateData,
     include: {
       user: true,
     },
