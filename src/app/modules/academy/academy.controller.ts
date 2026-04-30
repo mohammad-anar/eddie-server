@@ -6,8 +6,16 @@ import { academyFilterableFields, paginationFields } from "./academy.constant.js
 import catchAsync from "app/shared/catchAsync.js";
 import sendResponse from "app/shared/sendResponse.js";
 
+import { getSingleFilePath } from "../../shared/getFilePath.js";
+
 const createAcademy = catchAsync(async (req: Request, res: Response) => {
-  const result = await AcademyService.createAcademy(req.body);
+  if (req.files) {
+    req.body.data = JSON.parse(req.body.data);
+    req.body.data.logo = getSingleFilePath(req.files, "logo");
+    req.body.data.coverPhoto = getSingleFilePath(req.files, "coverPhoto");
+    req.body.data.nationalityFlag = getSingleFilePath(req.files, "nationalityFlag");
+  }
+  const result = await AcademyService.createAcademy(req.body.data || req.body);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -46,7 +54,13 @@ const getSingleAcademy = catchAsync(async (req: Request, res: Response) => {
 
 const updateAcademy = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await AcademyService.updateAcademy(id as string, req.body);
+  if (req.files) {
+    req.body.data = JSON.parse(req.body.data);
+    req.body.data.logo = getSingleFilePath(req.files, "logo");
+    req.body.data.coverPhoto = getSingleFilePath(req.files, "coverPhoto");
+    req.body.data.nationalityFlag = getSingleFilePath(req.files, "nationalityFlag");
+  }
+  const result = await AcademyService.updateAcademy(id as string, req.body.data || req.body);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
