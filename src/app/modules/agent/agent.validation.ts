@@ -1,9 +1,6 @@
 import { z } from "zod";
 
 const createAgentZodSchema = z.object({
-  userId: z.string({
-    message: "User ID is required",
-  }),
   agencyName: z.string().optional(),
   licenseNumber: z.string().optional(),
   experienceYears: z.number().optional(),
