@@ -39,7 +39,6 @@ model Player {
   gameReports      GameReport[]
   sessionPlayers   SessionPlayer[]
   coachComments    CoachComment[]
-  detailedAnalysis DetailedAnalysisMetrix?
   positionalCoeffs PositionalCoEfficients?
   attributeAnalysis PlayerAttributeAnalysis?
   posts            Post[]

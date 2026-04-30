@@ -50,6 +50,7 @@ model Coach {
   formations      CoachFormation[]
   testimonials    CoachTestimonial[]
   docs            CoachDoc[]
+  posts           Post[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
