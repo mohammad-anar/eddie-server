@@ -1,6 +1,6 @@
-  # Backend Instructions & Guidelines
+# Backend Instructions & Guidelines
 
-This document outlines the standard practices, architectural patterns, and conventions used in the `azan-munir-server` backend codebase. When contributing to or iterating on this project, please adhere to these guidelines.
+This document outlines the standard practices, architectural patterns, and conventions used in this backend codebase. When contributing to or iterating on this project, please adhere to these guidelines.
 
 ## 1. Folder Structure
 
@@ -8,87 +8,89 @@ The project follows a localized, modular, and domain-driven folder architecture:
 - **`src/`**: The root directory for all source code.
   - **`app.ts`**: Express application setup, global middlewares, and root routing.
   - **`server.ts`**: Application entry point, server bootstrap, database/socket initialization, and graceful shutdown handling.
-  - **`app/modules/`**: Contains domain-specific modules (e.g., `auth`, `bike`, `booking`, `job`). Each module encapsulates its own routes, controllers, services, interfaces, and validations.
+  - **`app/modules/`**: Contains domain-specific modules (e.g., `auth`, `user`, `club`). Each module encapsulates its own routes, controllers, services, interfaces, and validations.
   - **`app/routes/index.ts`**: The centralized router that aggregates all module-level routes.
   - **`app/middlewares/`**: Global middlewares such as `globalErrorHandler.ts` and `notFound.ts`.
   - **`app/shared/`**: Common reusable utilities (e.g., `catchAsync.ts`, `sendResponse.ts`).
-  - **`config/`**: Environment variable configurations (`index.ts`).
-  - **`helpers.ts/`**: Helper files (like `socketHelper.ts`, `pick.ts`).
+  - **`config/`**: Environment variable configurations.
+  - **`helpers/`**: Helper files (like `jwtHelper.ts`, `prisma.ts`).
   - **`types/`**: Global type declarations.
 
 ## 2. Naming Conventions
 
-- **Modules**: Module folders use `camelCase` and are typically named as singular nouns (e.g., `jobOffer`, `chatNotification`, `auth`).
-- **File Names**: Files inside a module follow a structured pattern indicating their role: `[moduleName].[type].ts`.
+- **Modules**: Module folders use `camelCase` and are typically named as singular nouns (e.g., `jobOffer`, `auth`).
+- **File Names**: Files inside a module follow a structured pattern: `[moduleName].[type].ts`.
   - e.g., `user.controller.ts`, `user.service.ts`, `user.route.ts`, `user.validation.ts`, `user.interface.ts`.
-- **Exports**: Major logic chunks (controllers, services, validations) are grouped into objects and exported with `PascalCase` names (e.g., `export const UserController = { ... }`, `export const UserValidation = { ... }`).
-- **Imports (ESM Requirement)**: Since this is defined as `"type": "module"` in `package.json`, local file imports **MUST** include the `.js` extension (e.g., `import { UserService } from "./user.service.js";`). 
+- **Exports**: Major logic chunks (controllers, services, validations) are grouped into objects and exported with `PascalCase` names (e.g., `export const UserController = { ... }`).
+- **Imports (ESM Requirement)**: Local file imports **MUST** include the `.js` extension (e.g., `import { UserService } from "./user.service.js";`).
 
-## 3. Type Safety Usage
+## 3. Type Safety & Coding Standards
 
-The codebase is heavily typed using TypeScript and integrated with runtime type safety tools:
-- **Static Typing (TypeScript)**: Utilize strict typings for function parameters and return types. Avoid the `any` keyword whenever possible.
-- **Database Types (Prisma)**: Prisma auto-generates types from the schema. Use them for typing DB operations (e.g., `Prisma.UserCreateInput`).
-- **Runtime Validation (Zod)**: Use Zod to validate incoming HTTP requests. Schemas are defined in `[moduleName].validation.ts` (e.g., `createUserZodSchema`) and should be enforced via middleware before reaching the controller.
-- **Express Types**: Use types like `Request`, `Response`, `NextFunction` from `"express"` inside controllers and middlewares.
+The codebase enforces strict type safety:
+- **Interfaces First**: Always define TypeScript interfaces/types in `[moduleName].interface.ts` before implementing services or controllers.
+- **Exact Type Validation**: Avoid `any`. Use specific interfaces for function parameters and return types.
+- **Zod Validation**: Use Zod for runtime request body validation. Schemas in `[moduleName].validation.ts` should NOT include the `body: z.object` wrapper; the `validateRequest` middleware handles the structure.
+- **Prisma Types**: Utilize Prisma's auto-generated types for database operations where possible.
 
 ## 4. Pathing
 
-- **Base URL Imports**: `tsconfig.json` sets `baseUrl: "."`. This allows absolute imports starting from `src/` (e.g., `import config from "src/config/index.js";`).
-- **Relative Imports**: Sibling or deeply nested module files often use relative imports (e.g., `import { UserRouter } from "../modules/auth/user.route.js";`).
-- **IMPORTANT**: As mentioned above, **always append `.js`** to the end of relative and absolute local file imports to satisfy the ES2020/Node16 modules resolution used in this project.
+- **Base URL Imports**: `tsconfig.json` allows absolute imports starting from `src/` (e.g., `import config from "src/config/index.js";`).
+- **IMPORTANT**: **Always append `.js`** to the end of relative and absolute local file imports.
 
 ## 5. Routing
 
 - **Centralized Routing**: All module routes must be registered in `src/app/routes/index.ts` within the `moduleRoutes` array.
-  ```typescript
-  import { UserRouter } from "../modules/auth/user.route.js";
-  const moduleRoutes = [
-    {
-      path: "/auth",
-      route: UserRouter,
-    },
-    // ...
-  ]
-  ```
-- **Module Routes**: Each module defines its endpoints using `express.Router()` in `[moduleName].route.ts`.
-- **Base Endpoint**: The centralized `router` is mounted in `app.ts` under the base path `/api/v1` (`app.use("/api/v1", router);`).
+- **Base Endpoint**: The centralized `router` is mounted in `app.ts` under the base path `/api/v1`.
 
-## 6. Build & Compilation Check
+## 6. File Upload Handling
 
-To check for type errors and build the project, run:
+For endpoints requiring file uploads (e.g., images, documents):
+- **Middleware**: Use `fileUploadHandler()` middleware in the route definition.
+- **Payload**: Clients should send data as `multipart/form-data`.
+- **Controller Logic**: 
+  - If the payload includes a JSON-stringified `data` field, parse it: `req.body.data = JSON.parse(req.body.data)`.
+  - Use `getSingleFilePath(req.files, 'image')` or `getMultipleFilesPath(req.files, 'image')` to extract file paths.
+  - Assign extracted paths to the appropriate fields in `req.body.data` or `req.body`.
+
+## 7. Searching, Filtering, and Pagination
+
+For endpoints returning multiple records:
+- **Pick Helper**: Use the `pick` helper to extract filterable fields and pagination options from `req.query`.
+- **Constants**: Define `filterableFields` and `searchableFields` in `[moduleName].constant.ts`. Use `paginationFields` from a shared constant file or define it locally to include `['page', 'limit', 'sortBy', 'sortOrder']`.
+- **Pagination Helper**: Use `paginationHelper.calculatePagination(options)` in the service layer to get `limit`, `page`, `skip`, `sortBy`, and `sortOrder`.
+- **Response Structure**: Always return data wrapped in `IGenericResponse<T>` (defined in `src/types/common.ts`) which includes `meta` (total, page, limit) and `data`.
+
+## 8. Development Workflow
+
+To check for type errors:
 ```bash
-pnpm build
+npm run build
+# or
+npx tsc --noEmit
 ```
-- Under the hood, this executes `tsc` using the local `tsconfig.json`.
-- **Note**: The current `tsconfig.json` does not specify an `outDir`. Calling `tsc` will generate compiled `.js` files alongside your `.ts` source files. If your goal is just checking type safety without emitting files, use `tsc --noEmit` if you customize the package script. Wait for the `pnpm build` command to finish with `exit code 0` to confirm there are no type discrepancies.
 
-## 7. Creating a New Module
+## 9. Creating a New Module (Generic Workflow)
 
-To create a new full module from start to finish via an AI prompt or manual scaffolding, ensure the following steps are performed:
+To create a new module, follow these steps in order:
 
-1. **Create the Module Directory**: Create a folder `src/app/modules/[moduleName]` (use `camelCase` for the folder name).
-2. **Schema & Types**:
-   - Update `prisma/schema.prisma` with the new models and run `npx prisma db push` or `npx prisma migrate dev`.
-   - Create `[moduleName].interface.ts` if specific utility types beyond Prisma are needed.
-3. **Zod Validation**:
-   - Create `[moduleName].validation.ts`.
-   - Export schemas like `create[ModuleName]ZodSchema` and `update[ModuleName]ZodSchema`.
-4. **Service Layer**:
-   - Create `[moduleName].service.ts`.
-   - Implement business logic and DB interactions (CRUD operations, filtering, etc.).
-   - Export logic as a group: `export const [ModuleName]Service = { ... }`.
-5. **Controller Layer**:
-   - Create `[moduleName].controller.ts`.
-   - Implement request handling, using `catchAsync()`, `pick()`, and `sendResponse()`.
-   - Ensure the `.service.js` and other internal imports end in `.js`.
-   - Export as `export const [ModuleName]Controller = { ... }`.
-6. **Routes**:
-   - Create `[moduleName].route.ts` (or `.routes.ts`).
-   - Define endpoints `router.post(...)`, `router.get(...)`.
-   - Apply validations using `validateRequest([ModuleName]Validation...)` middleware where appropriate.
-   - Export the router (e.g., `export const [ModuleName]Router = router;`).
-7. **Register Route**:
-   - Go to `src/app/routes/index.ts`.
-   - Import the new route file (`import { [ModuleName]Router } from "../modules/[moduleName]/[moduleName].route.js";`). Always include the `.js` extension!
-   - Add the route to the `moduleRoutes` array with its base path.
+1.  **Create Module Directory**: `src/app/modules/[moduleName]`.
+2.  **Define Interfaces**: Create `[moduleName].interface.ts`. Define all DTOs (Data Transfer Objects) and payloads.
+3.  **Define Zod Validations**: Create `[moduleName].validation.ts`. Define schemas for create/update operations.
+4.  **Implement Service Layer**: Create `[moduleName].service.ts`. Use the interfaces defined in step 2. Implement business logic and DB interactions.
+5.  **Implement Controller Layer**: Create `[moduleName].controller.ts`. Use `catchAsync()` for error handling and `sendResponse()` for consistent API responses.
+6.  **Define Routes**: Create `[moduleName].route.ts`. Use `auth()` middleware for protection and `validateRequest()` for Zod validation (unless using `formData` for file uploads).
+7.  **Handle Files**: If the module requires file uploads, integrate `fileUploadHandler()` and update the controller to process `req.files`.
+8.  **Register Route**: Add the new route to `src/app/routes/index.ts`.
+
+Example Route Registration:
+```typescript
+import { NewModuleRouter } from "../modules/newModule/newModule.route.js";
+const moduleRoutes = [
+  { path: "/new-module", route: NewModuleRouter },
+];
+```
+
+## 10. Admin & User Module Patterns
+
+- **getMe**: All modules providing a "profile" should implement a `getMe` service that accepts a `JwtPayload` and returns the profile including relevant relations (e.g., `Player`, `Club`, `Coach`).
+- **Admin Access**: Admin-only list views must implement searching (via `searchTerm` on `OR` conditions) and filtering (via exact matches on `AND` conditions).
