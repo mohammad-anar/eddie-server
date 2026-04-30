@@ -6,8 +6,14 @@ import { coachFilterableFields, paginationFields } from "./coach.constant.js";
 import catchAsync from "app/shared/catchAsync.js";
 import sendResponse from "app/shared/sendResponse.js";
 
+import { getSingleFilePath } from "../../shared/getFilePath.js";
+
 const createCoach = catchAsync(async (req: Request, res: Response) => {
-  const result = await CoachService.createCoach(req.body);
+  if (req.files) {
+    req.body.data = JSON.parse(req.body.data);
+    req.body.data.nationalityFlag = getSingleFilePath(req.files, "nationalityFlag");
+  }
+  const result = await CoachService.createCoach(req.body.data || req.body);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -46,7 +52,11 @@ const getSingleCoach = catchAsync(async (req: Request, res: Response) => {
 
 const updateCoach = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await CoachService.updateCoach(id as string, req.body);
+  if (req.files) {
+    req.body.data = JSON.parse(req.body.data);
+    req.body.data.nationalityFlag = getSingleFilePath(req.files, "nationalityFlag");
+  }
+  const result = await CoachService.updateCoach(id as string, req.body.data || req.body);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
