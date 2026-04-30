@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 const createClubZodSchema = z.object({
-  userId: z.string().optional(),
   name: z.string("Name is required"),
   country: z.string().optional(),
   countryFlag: z.string().optional(),
@@ -18,7 +17,6 @@ const createClubZodSchema = z.object({
 });
 
 const updateClubZodSchema = z.object({
-  userId: z.string().optional(),
   name: z.string().optional(),
   country: z.string().optional(),
   countryFlag: z.string().optional(),
