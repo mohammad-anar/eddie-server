@@ -7,7 +7,10 @@ import catchAsync from "app/shared/catchAsync.js";
 import sendResponse from "app/shared/sendResponse.js";
 
 const createTeam = catchAsync(async (req: Request, res: Response) => {
-  const result = await TeamService.createTeam(req.body);
+  if (req.body.data) {
+    req.body.data = JSON.parse(req.body.data);
+  }
+  const result = await TeamService.createTeam(req.body.data || req.body);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -46,7 +49,10 @@ const getSingleTeam = catchAsync(async (req: Request, res: Response) => {
 
 const updateTeam = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await TeamService.updateTeam(id as string, req.body);
+  if (req.body.data) {
+    req.body.data = JSON.parse(req.body.data);
+  }
+  const result = await TeamService.updateTeam(id as string, req.body.data || req.body);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
