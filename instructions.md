@@ -92,5 +92,6 @@ const moduleRoutes = [
 
 ## 10. Admin & User Module Patterns
 
-- **getMe**: All modules providing a "profile" should implement a `getMe` service that accepts a `JwtPayload` and returns the profile including relevant relations (e.g., `Player`, `Club`, `Coach`).
-- **Admin Access**: Admin-only list views must implement searching (via `searchTerm` on `OR` conditions) and filtering (via exact matches on `AND` conditions).
+- **getMe**: All modules providing a "profile" should implement a `getMe` service that accepts a `JwtPayload` (from `jsonwebtoken`) and returns the profile including relevant relations (e.g., `Player`, `Club`, `Coach`, `addresses`).
+- **Admin Access**: Admin-only list views must implement searching (via `searchTerm` on `OR` conditions for string fields) and filtering (via exact matches on `AND` conditions). Boolean fields like `isVerified` should be parsed from strings.
+- **Type Casting**: If JWT configuration types (like `jwt_expire_in`) cause TypeScript errors when used as function arguments, use `as any` to bypass strict string/number conflicts.
